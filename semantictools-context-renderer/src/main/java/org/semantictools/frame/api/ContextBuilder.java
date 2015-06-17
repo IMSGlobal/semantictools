@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,23 +54,28 @@ import com.hp.hpl.jena.vocabulary.OWL2;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContextBuilder {
+
+  private static final Logger logger = LoggerFactory.getLogger(ContextBuilder.class);
+
   private static final String CONTAINER = "http://www.w3.org/ns/ldp#Container";
   private static final String PAGE = "http://www.w3.org/ns/ldp#Page";
   private static final String nextPage = "http://www.w3.org/ns/ldp#nextPage";
   private static final String NIL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
   private OntModel model;
   private TypeManager typeManager;
-  
+
   private OntProperty suggestedPrefix;
-  
+
   private Set<String> history;
 
   public ContextBuilder(TypeManager typeManager) {
     this.model = typeManager.getOntModel();
     this.typeManager = typeManager;
-    
+
     suggestedPrefix = model.getOntProperty("http://purl.org/semantictools/v1/vocab/bind#suggestedPrefix");
   }
 
@@ -82,7 +87,7 @@ public class ContextBuilder {
     context.setContextURI(properties.getContextURI());
     context.setMediaType(properties.getMediaType());
     context.setRootType(properties.getRdfTypeURI());
-    
+
     String typeURI = properties.getRdfTypeURI();
     if (typeURI == null) {
       return null;
@@ -101,16 +106,16 @@ public class ContextBuilder {
       TermInfo term = new TermInfo("nil");
       term.setIriValue(NIL);
       context.add(term);
-      
+
       properties.getIdRefList().add(nextPage);
-      
-      
+
+
     }
     context.expand();
     context.invertRewriteRules();
-    
+
     updateFrameConstraints(properties, context);
-    
+
     return context;
   }
 
@@ -126,13 +131,13 @@ public class ContextBuilder {
         addType(properties, context, frame, false, true);
       }
     }
-    
+
   }
 
 
 
   private void updateFrameConstraints(ContextProperties properties,  JsonContext context) {
-    
+
     List<FrameConstraints> list = properties.listFrameConstraints();
     for (FrameConstraints c : list) {
       String name = c.getClassURI();
@@ -144,15 +149,15 @@ public class ContextBuilder {
         properties.addFrameConstraints(c);
       }
     }
-    
-    
+
+
   }
 
 
 
   private boolean isStandard(String uri) {
     return uri != null && uri.startsWith("http://www.w3.org/2001/XMLSchema#");
-   
+
 //    return uri.startsWith("http://www.w3.org/2001/XMLSchema#") ||
 //        uri.startsWith("http://www.w3.org/2002/07/owl#");
   }
@@ -167,53 +172,53 @@ public class ContextBuilder {
 //      rdfType = rdfType.asListType().getElementType();
       addType(properties, context, rdfType.asListType().getElementType(), stubbed, allFields);
     }
-    
-        
+
+
     if (isStandard(typeURI)) return;
 
     String localName = rdfType.getLocalName();
-    
+
     String prefix = getPrefix(context, rdfType.getNamespace());
-    
-    
+
+
     String iri = (prefix == null) ? typeURI : prefix + ":" + localName;
 
     if (!context.containsTerm(localName)) {
       context.add(localName, iri).setCategory(TermCategory.TYPE);
     }
-    
+
 
     if (stubbed || history.contains(typeURI)) return;
-    
+
     Frame frame = typeManager.getFrameByUri(typeURI);
     if (frame == null) {
       // Since the frame was not found, the type is probably a Datatype.
       // Let's confirm that the datatype exists.
-      
+
       Datatype datatype = typeManager.getDatatypeByUri(typeURI);
       if (datatype == null) {
         throw new FrameNotFoundException(typeURI);
       }
       return;
     }
-    
+
     history.add(typeURI);
-    
+
     if (typeURI.equals(RDFS.Resource.getURI())) {
     	return;
     }
-    
+
     FrameConstraints constraints = properties.getFrameConstraints(localName);
-    
+
     List<Field> fieldList = allFields ? frame.listAllFields() : frame.getDeclaredFields();
     for (Field field : fieldList) {
       if (constraints == null || constraints.isIncludedProperty(field.getURI())) {
         addField(properties, context, field, frame);
       }
     }
-    
+
     addSubtypes(properties, context, frame);
-    
+
   }
 
 
@@ -228,17 +233,17 @@ public class ContextBuilder {
 
 
   private void addSubtypes(ContextProperties properties, JsonContext context, Frame frame) {
-    
+
     FrameConstraints c = properties.getFrameConstraints(frame.getLocalName());
-    
+
     List<Frame> list = frame.listAllSubtypes();
     for (Frame sub : list) {
       if (properties.getExcludedTypes().contains(sub.getUri())) {
     	continue;
       }
-    		
+
       if (c != null) {
-        // If the supertype has constraints, then they must bubble down to 
+        // If the supertype has constraints, then they must bubble down to
         // subtypes.  This means that the constraints cannot be null on the subtypes...
         FrameConstraints cc = properties.getFrameConstraints(sub.getLocalName());
         if (cc == null) {
@@ -246,30 +251,30 @@ public class ContextBuilder {
           properties.addFrameConstraints(cc);
         }
         cc.copyAll(c);
-      } 
-      
+      }
+
       addType(properties, context, sub, false, false);
     }
-    
+
   }
 
 
 
   private void addField(ContextProperties properties, JsonContext context, Field field, Frame declaringFrame) {
     OntProperty property = field.getProperty();
-    
+
     if (!isIncluded(field, properties, declaringFrame)) return;
-    
-    
+
+
     boolean allFields = field.getDeclaringFrame() == declaringFrame;
-    
+
     String localName = property.getLocalName();
     String propertyURI = property.getURI();
     String iriValue = iriRef(context, property.getNameSpace(), property.getLocalName(), propertyURI);
     TermInfo info = new TermInfo(localName);
     info.setCategory(TermCategory.PROPERTY);
-    
-   
+
+
     RdfType rdfType = field.getRdfType();
     TermValue value = null;
     if (rdfType == null) {
@@ -278,22 +283,22 @@ public class ContextBuilder {
     if (rdfType.canAsListType()) {
       value = new TermValue();
       value.setContainer(Container.LIST);
-      
-    } 
+
+    }
 //    if (rdfType.canAsListType()) {
 //      rdfType = rdfType.asListType().getElementType();
 //    }
     boolean uriRef = properties.isIdRef(property.getURI());
-    
-    boolean enumerable = 
-        rdfType != null && 
-        rdfType.canAsFrame() && 
+
+    boolean enumerable =
+        rdfType != null &&
+        rdfType.canAsFrame() &&
         (rdfType.asFrame().getCategory() == RestCategory.ENUMERABLE);
-    
+
     boolean stubbed = false;
     // stubbed=true means that the object is stubbed out because it is coerced as an IRI reference only,
     //              or it is an enumerable type.
-    
+
 
     if (enumerable || uriRef ) {
       if (value == null) {
@@ -301,55 +306,55 @@ public class ContextBuilder {
       }
       value.setType("@id");
       stubbed = true;
-      
-    } 
+
+    }
     if (properties.getOptionalProperties().contains(property.getURI())) {
       if (value == null) {
         value = new TermValue();
       }
       value.setMinCardinality(0);
     }
-    
+
     if (
-        enumerable 
+        enumerable
         || (rdfType!=null && rdfType.canAsFrame() && rdfType.asFrame().hasInstances())
     ) {
       addIndividuals(context, rdfType.asFrame());
     }
-    
+
     addValueRestriction(context, field);
-    
-    
+
+
     if (value != null) {
       value.setId(iriValue);
       info.setObjectValue(value);
     } else {
       info.setIriValue(iriValue);
     }
-    
+
     addNamespace(context, field, property);
-    
-   
+
+
 
     if (!context.containsTerm(localName)) {
       context.add(info);
     }
-    
-    
+
+
     if (value != null && value.getContainer() == Container.LIST) {
       addType(properties, context, rdfType, stubbed, allFields);
-      
+
     } else if (rdfType.canAsFrame()) {
       addType(properties, context, rdfType, stubbed, allFields);
-      
+
     } else {
-      
+
       addNamespace(context, rdfType);
       addType(properties, context, rdfType, true, allFields);
-      
+
       if (!properties.getExpandedValues().contains(propertyURI)) {
         String propertyTypeURI = rdfType.getUri();
-        
+
         String typeIRI = iriRef(context, rdfType.getNamespace(), rdfType.getLocalName(), propertyTypeURI);
         if (value == null) {
           value = new TermValue();
@@ -359,22 +364,23 @@ public class ContextBuilder {
         info.setObjectValue(value);
         addNamespace(context, rdfType);
       } else {
-        System.out.println("expanded value: " + info.getTermName());
+//        System.out.println("expanded value: " + info.getTermName());
+        logger.info("expanded value: " + info.getTermName());
       }
-      
-      
+
+
     }
-    
+
     coerceType(info, properties);
-    
+
     if (field.getType().canAs(OntProperty.class)) {
       addPropertyHierarchy(context, field.getType().asProperty());
     }
   }
-  
-  
+
+
   private void addPropertyHierarchy(JsonContext context, OntProperty property) {
-    
+
     String localName = property.getLocalName();
     TermInfo info = context.getTermInfoByShortName(localName);
     if (info == null) {
@@ -383,32 +389,32 @@ public class ContextBuilder {
       info.setIriValue(uri);
       info.setCategory(TermCategory.PROPERTY);
       TermValue value = new TermValue();
-      
+
       TermInfo namespace = addNamespace(context, property);
-      
+
       StringBuilder id = new StringBuilder();
       id.append(namespace.getTermName());
       id.append(":");
       id.append(property.getLocalName());
       value.setId(id.toString());
-     
+
       value.setType("@id");
       info.setObjectValue(value);
       context.add(info);
       context.put(uri, info);
     }
-    
+
     List<? extends OntProperty> list = property.listSubProperties(true).toList();
     for (OntProperty p : list) {
       addPropertyHierarchy(context, p);
     }
-    
+
   }
 
 
 
   private void addValueRestriction(JsonContext context, Field field) {
-    
+
     NamedIndividual value = field.getValueRestriction();
     if (value != null) {
       String uri = value.getUri();
@@ -420,20 +426,20 @@ public class ContextBuilder {
         context.add(info);
       }
     }
-    
+
   }
 
 
 
   private void coerceType(TermInfo info, ContextProperties properties) {
-    
+
     String key = info.getTermName() + ".@type";
     String typeURI = properties.getProperty(key);
-    
+
     if (typeURI == null) return;
-    
-    
-    
+
+
+
   }
 
 
@@ -442,106 +448,106 @@ public class ContextBuilder {
     String namespace = individual.getNamespaceURI();
     TermInfo term = context.getTermInfoByURI(namespace);
     if (term != null) return term;
-    
+
     String prefix = getPrefix(context, namespace);
-    
+
     OntologyInfo info = typeManager.getOntologyByNamespaceUri(namespace);
-   
-    
-    
+
+
+
     term = new TermInfo(prefix);
     term.setIriValue(namespace);
     term.setCategory(TermCategory.NAMESPACE);
     context.add(term);
-    
+
     return term;
   }
 
   private TermInfo addNamespace(JsonContext context, RdfType rdfType) {
-    
+
     String namespace = rdfType.getNamespace();
     TermInfo term = context.getTermInfoByURI(namespace);
     if (term != null) return term;
-    
+
     OntologyInfo info = typeManager.getOntologyByNamespaceUri(namespace);
-   
-    
+
+
     String prefix = info==null ?
         TypeManager.getDefaultNamespacePrefix(namespace) :
         info.getPrefix();
-    
+
     term = new TermInfo(prefix);
     term.setIriValue(namespace);
     term.setCategory(TermCategory.NAMESPACE);
     context.add(term);
-    
+
     return term;
-    
+
   }
 
 
 
   private boolean isIncluded(Field field, ContextProperties properties, Frame declaringFrame) {
-    
+
     String fieldType = field.getRdfType().getUri();
     if (properties.getExcludedTypes().contains(fieldType)) return false;
-    
+
     List<Frame> superList = declaringFrame.getSupertypeList();
     for (Frame superFrame : superList) {
     	if (!isIncluded(field, properties, superFrame)) {
     		return false;
     	}
     }
-    
+
     FrameConstraints constraints = properties.getFrameConstraints(declaringFrame.getLocalName());
-   
+
     return (constraints == null) || constraints.isIncludedProperty(field.getURI());
   }
 
 
 
   private void addIndividuals(JsonContext context, Frame frame) {
-    
+
     if (frame.getUri().startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#") ||
         frame.getUri().startsWith("http://www.w3.org/2000/01/rdf-schema#") ||
         frame.getUri().startsWith("http://www.w3.org/2002/07/owl#")
     ) return;
-    
+
     if (frame.canAsEnumeration()) {
       addIndividuals(context, frame.asEnumeration());
-      
+
     } else {
       List<NamedIndividual> list = frame.listInstances(false);
       for (NamedIndividual n : list) {
         String name = n.getLocalName();
         String uri = n.getUri();
         TermInfo term = context.getTermInfoByShortName(name);
-        
+
         if (term != null) {
           String termURI = term.getIri();
           if (!uri.equals(termURI)) {
             // There is another entity with the same short name.
             // Check to see if this entity is registered by another name.
-            
+
             term = context.getTermInfoByURI(uri);
             if (term == null) {
               // Not registered.  So create a new term using a CURIE.
-              
+
               TermInfo nsTerm = addNamespace(context, n);
               String prefix = nsTerm.getTermName();
               name = prefix + ":" + name;
-              
+
               term = new TermInfo(name);
               term.setIriValue(name);
               context.add(term);
             }
-            
-            
+
+
           }
         }
-        
+
         if (term == null) {
-          
+
           TermInfo nsTerm = addNamespace(context, n);
           uri = nsTerm.getTermName() + ":" + name;
           term = new TermInfo(name);
@@ -550,9 +556,9 @@ public class ContextBuilder {
         }
       }
     }
-    
+
   }
-  
+
   private void addIndividuals(JsonContext context, Enumeration e) {
     List<NamedIndividual> list = e.getIndividualList();
     for (NamedIndividual n : list) {
@@ -569,21 +575,21 @@ public class ContextBuilder {
 
     String namespace = field.getProperty().getNameSpace();
     String prefix = getPrefix(context, namespace);
-    
+
     TermInfo term = context.getTermInfoByShortName(prefix);
     if (term != null) return;
     term = new TermInfo(prefix);
     term.setCategory(TermCategory.NAMESPACE);
     term.setIriValue(namespace);
-    
+
     context.add(term);
   }
-  
+
   private TermInfo addNamespace(JsonContext context, OntProperty property) {
     String namespace = property.getNameSpace();
     String prefix = getPrefix(context, namespace);
     TermInfo term = context.getTermInfoByShortName(prefix);
-    
+
     if (term != null) {
       return term;
     }
@@ -614,7 +620,7 @@ public class ContextBuilder {
     String ontologyURI = null;
     String prefix = null;
     String label = null;
-    
+
     // Check to see if the namespaceURI is listed as the subject in any statements
     StmtIterator sequence = model.listStatements(namespaceResource, null, (RDFNode) null);
     while (sequence.hasNext()) {
@@ -626,7 +632,7 @@ public class ContextBuilder {
           s.getPredicate().equals(DublinCoreTerms.title)) {
         label = s.getObject().asLiteral().getString();
       }
-      if (s.getPredicate().equals(BindVocabulary.suggestedPrefix) || 
+      if (s.getPredicate().equals(BindVocabulary.suggestedPrefix) ||
           s.getPredicate().equals(VannVocabulary.preferredNamespacePrefix)) {
         prefix = s.getObject().asLiteral().getString();
       }
@@ -634,7 +640,7 @@ public class ContextBuilder {
         break;
       }
     }
-    
+
     if (ontologyURI == null) {
       // Check to see if the namespaceURI is referenced via the preferredNamespacePrefix
       Literal object = tmp.createLiteral(namespaceURI);
@@ -643,7 +649,7 @@ public class ContextBuilder {
         Statement s = sequence.next();
         Resource subject = s.getSubject();
         ontologyURI = subject.getURI();
-       
+
         s = subject.getProperty(VannVocabulary.preferredNamespacePrefix);
         if (s != null) {
           prefix = s.getObject().asLiteral().getString();
@@ -653,7 +659,7 @@ public class ContextBuilder {
             prefix =  s.getObject().asLiteral().getString();
           }
         }
-        
+
         if (prefix != null) {
           s = subject.getProperty(DublinCoreTerms.title);
           if (s == null) {
@@ -665,36 +671,36 @@ public class ContextBuilder {
           if (s != null) {
             label = s.getObject().asLiteral().getString();
           }
-          
+
         }
-        
+
       }
     }
-    
+
    OntologyInfo info = new OntologyInfo();
-   
+
    info.setNamespaceUri(namespaceURI);
    info.setOntologyURI(ontologyURI);
    info.setPrefix(prefix);
    info.setLabel(label);
-    
+
     return info;
   }
 
   private String getPrefix(JsonContext context, String namespaceURI) {
 
     String prefix = null;
-    
+
     // Special handling for OWL namespace.
     if (OWL2.NS.equals(namespaceURI)) {
       OntologyInfo info = typeManager.getOntologyByNamespaceUri(namespaceURI);
       prefix = info.getPrefix();
-                
+
     } else {
-      
+
       OntologyInfo info = typeManager.getOntologyByNamespaceUri(namespaceURI);
       if (info == null) {
-      
+
         info = createOntologyInfo(namespaceURI);
         typeManager.add(info);
         prefix = info.getPrefix();
@@ -710,8 +716,8 @@ public class ContextBuilder {
       String uri = namespaceURI;
       context.add(prefix, uri).setCategory(TermCategory.NAMESPACE);
     }
-    
-    
+
+
     return prefix;
   }
 
