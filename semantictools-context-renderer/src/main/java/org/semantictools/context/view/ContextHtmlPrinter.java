@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -249,33 +249,35 @@ public class ContextHtmlPrinter extends PrintEngine {
       indent().print("<TD>").print(mediaType).println("</TD>");
       popIndent();
       indent().println("</TR>");
-      indent().println("<TR>");
-      pushIndent();
-      indent().println("<TH>RDF Type</TH>");
-
-      indent().print("<TD>");
-      if (rdfTypeHref == null) {
-        print(rdfType);
-      } else {
-        print("<a ");
-        printAttr("href", rdfTypeHref);
-        print(">");
-        print(rdfType);
-        print("</a>");
+      if (rdfType != null) {
+        indent().println("<TR>");
+        pushIndent();
+        indent().println("<TH>RDF Type</TH>");
+        indent().print("<TD>");
+        if (rdfTypeHref == null) {
+          print(rdfType);
+        } else {
+          print("<a ");
+          printAttr("href", rdfTypeHref);
+          print(">");
+          print(rdfType);
+          print("</a>");
+        }
+        println("</TD>");
+        popIndent();
+        indent().println("</TR>");
       }
-
-      println("</TD>");
-      popIndent();
-      indent().println("</TR>");
-      indent().println("<TR>");
-      pushIndent();
-      indent().println("<TH>JSON-LD</TH>");
-      indent().print("<TD>");
-      print("<A");
-      printAttr("HREF", contextHref);
-      print(">").print(contextURI).println("</A></TD>");
-      popIndent();
-      indent().println("</TR>");
+      if (contextURI != null) {
+        indent().println("<TR>");
+        pushIndent();
+        indent().println("<TH>JSON-LD</TH>");
+        indent().print("<TD>");
+        print("<A");
+        printAttr("HREF", contextHref);
+        print(">").print(contextURI).println("</A></TD>");
+        popIndent();
+        indent().println("</TR>");
+      }
       popIndent();
       indent().println("</TABLE>");
       indent().println("<p></p>");
@@ -563,9 +565,9 @@ public class ContextHtmlPrinter extends PrintEngine {
     Heading heading = documentPrinter
         .createHeading("How To Read this Document");
     documentPrinter.print(heading);
-    
+
     List<Field> fieldList = getFieldList();
-    
+
     printSampleObject();
     printPropertyRepresentation(fieldList);
     printOptionalPropertyFigure(fieldList);
@@ -581,16 +583,16 @@ public class ContextHtmlPrinter extends PrintEngine {
 
       @Override
       public int compare(Field a, Field b) {
-        
+
         return a.getLocalName().compareTo(b.getLocalName());
       }
     });
-    
+
   }
 
   private void printContextDiscussion() {
     if (!contextProperties.isJsonldIntroduction()) return;
-    
+
     Heading heading = documentPrinter.createHeading("The JSON-LD Context");
     documentPrinter.print(heading);
 
@@ -745,7 +747,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
   private void printReservedTerms() {
     if (!contextProperties.isReservedTermsSection()) return;
-    
+
     Heading heading = documentPrinter.createHeading("Reserved Terms");
     documentPrinter.print(heading);
     printParagraph("The JSON-LD standard reserves a handful of property names and tokens "
@@ -974,7 +976,7 @@ public class ContextHtmlPrinter extends PrintEngine {
     List<Frame> graphTypes = getGraphTypes();
     TreeNode node = (graphTypes == null) ? treeGenerator.generateRoot(root, 1)
         : treeGenerator.generateGraph(graphTypes, 1);
-    
+
     node.sort();
 
     CreateDiagramRequest request = new CreateDiagramRequest(context, node, src);
@@ -1166,7 +1168,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
     TreeNode node = treeGenerator.generateNode(field);
     if (node == null) {
-    	logger.error("Cannot generated diagram for repeated field using {} for class {}", field.getLocalName(), contextProperties.getRdfTypeURI());
+    	logger.error("Cannot generate diagram for repeated field using {} for class {}", field.getLocalName(), contextProperties.getRdfTypeURI());
     	return;
     }
     CreateDiagramRequest request = new CreateDiagramRequest(context, node, src);
@@ -1285,7 +1287,7 @@ public class ContextHtmlPrinter extends PrintEngine {
   }
 
   private Field getOptionalSimpleType(List<Field> list) {
-   
+
     for (Field field : list) {
       if (field.getMinCardinality() == 0 && field.getMaxCardinality() == 1
           && field.getType().getURI() != null
@@ -1298,7 +1300,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
     return null;
   }
-  
+
   private boolean isSimpleType(Field field) {
     RdfType rdfType = field.getRdfType();
     return typeManager.isStandard(field.getType().getNameSpace()) ||
@@ -1318,13 +1320,13 @@ public class ContextHtmlPrinter extends PrintEngine {
     for (Field field : list) {
       if (field.getMinCardinality() == 0 && field.getMaxCardinality() == 1
           && !field.getRdfType().canAsListType()
-          && context.getTermInfoByURI(field.getURI()) != null 
+          && context.getTermInfoByURI(field.getURI()) != null
           && (constraints==null || constraints.isIncludedProperty(field.getURI()))
       ) {
         return field;
       }
       RdfType type = field.getRdfType();
-      
+
       if (type != null && type.canAsFrame()) {
         Field result = getAnyOptionalField(history, type.asFrame());
         if (result != null)
@@ -1365,9 +1367,9 @@ public class ContextHtmlPrinter extends PrintEngine {
     List<Field> list = root.listAllFields();
     if (list.isEmpty())
       return null;
-    
+
     FrameConstraints constraints = contextProperties.getFrameConstraints(root.getLocalName());
-    
+
 
     // Ideally, we'd rather not return an RDFS property (like "label")
     // or an OWL property (like "sameAs").
@@ -1414,22 +1416,22 @@ public class ContextHtmlPrinter extends PrintEngine {
     indent().println("</DIV>");
 
   }
-  
+
   private List<Field> getFieldList() {
     Set<String> visited = new HashSet<String>();
     List<Field> fieldList = new ArrayList<Field>();
-    
+
     logger.debug("getFieldList for {}", contextProperties.getRdfTypeURI());
     addFields(visited, fieldList, root);
-    
+
     sort(fieldList);
-    
+
     return fieldList;
-   
+
   }
 
   private void addFields(Set<String> visited, List<Field> sink, Frame frame) {
-    
+
     String frameURI = frame.getUri();
     if (!visited.contains(frameURI)) {
       visited.add(frameURI);
@@ -1442,22 +1444,22 @@ public class ContextHtmlPrinter extends PrintEngine {
         }
       }
     }
-    
+
   }
 
   private void filterFields(Set<String> visited, List<Field> sink, List<Field> declared) {
-   
+
     for (Field field : declared) {
       String uri = field.getURI();
-     
+
       if (!visited.contains(uri)) {
         visited.add(uri);
-        
+
         TermInfo term = context.getTermInfoByURI(uri);
         if (term != null) {
         	logger.debug("      {}", field.getLocalName());
           sink.add(field);
-          
+
           RdfType type = field.getRdfType();
           if (type != null && type.canAsFrame()) {
             addFields(visited, sink, type.asFrame());
@@ -1465,11 +1467,11 @@ public class ContextHtmlPrinter extends PrintEngine {
         }
       }
     }
-    
+
   }
 
   private Field getSimpleTypeField(List<Field> list) {
-    
+
     for (Field field : list) {
 
       RdfType type = field.getRdfType();
@@ -1584,20 +1586,20 @@ public class ContextHtmlPrinter extends PrintEngine {
       TreeNode node = null;
       if (graphTypes == null) {
         if (root.isSubclassOf(CONTAINER)) {
-          
+
           Frame page = typeManager.getFrameByUri(PAGE);
           if (page == null) {
             throw new FrameNotFoundException(PAGE);
           }
           node = treeGenerator.generateRoot(page, null, -1);
-          
+
         } else {
           node = treeGenerator.generateRoot(root, rdfProperty, -1);
         }
       } else {
         node = treeGenerator.generateGraph(graphTypes, -1);
       }
-      
+
 
       sortAll(node);
 
@@ -1920,7 +1922,7 @@ public class ContextHtmlPrinter extends PrintEngine {
   }
 
   private void printIndividuals(Frame frame) {
-    
+
     String frameURI = frame.getUri();
     if (
         frameURI.startsWith("http://www.w3.org/1999/02/22-rdf-syntax-ns#") ||
@@ -1928,12 +1930,12 @@ public class ContextHtmlPrinter extends PrintEngine {
     ){
       return;
     }
-    
+
     if (frame.getCategory() != RestCategory.ENUMERABLE) return;
 
     List<NamedIndividual> list = frame.listInstances(false);
-    
-    
+
+
     if (list.isEmpty()) return;
 
     Collections.sort(list, new Comparator<NamedIndividual>() {
@@ -1942,7 +1944,7 @@ public class ContextHtmlPrinter extends PrintEngine {
       public int compare(NamedIndividual a, NamedIndividual b) {
         String aName = a.getLocalName();
         String bName = b.getLocalName();
-        
+
         return (aName==null || bName==null) ? 0 : aName.compareTo(bName);
       }
     });
@@ -1976,7 +1978,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
       String uri = n.getUri();
       TermInfo term = context.getTermInfoByURI(uri);
-      
+
       if (term == null) {
         continue;
       }
@@ -2169,7 +2171,7 @@ public class ContextHtmlPrinter extends PrintEngine {
     print(description);
     String value = field.getValueRestriction();
     List<String> knownValues = field.getKnownValues();
-    
+
     if (value != null) {
       println();
       indent().print("<P>");
@@ -2195,7 +2197,7 @@ public class ContextHtmlPrinter extends PrintEngine {
       println(").");
       indent().println("</P>");
     }
-    
+
     println("</TD>");
 
     indent().print("<TD>");
@@ -2359,7 +2361,7 @@ public class ContextHtmlPrinter extends PrintEngine {
         type = type.asListType().getElementType();
       }
 
-      
+
       if (info != null && type.canAsDatatype()) {
         set.add(type.getUri());
         continue;
