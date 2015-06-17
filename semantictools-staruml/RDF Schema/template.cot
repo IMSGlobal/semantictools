@@ -312,7 +312,7 @@ function RdfSchema(universe) {
   this.prefix = "rdfs";
   this.uri = "http://www.w3.org/2000/01/rdf-schema#";
   this.localType = new Object();
-  this.LITERAL = new Literal(this, "Literal");
+//  this.LITERAL = new Literal(this, "Literal");
   
   for (var name in this.localType) {
     var obj = this.localType[name];
@@ -329,7 +329,7 @@ function XmlSchema(universe) {
   this.prefix = "xsd";
   this.uri = "http://www.w3.org/2001/XMLSchema#";
   this.universe = universe;
-  this.INT = new Literal(this, "string");
+  this.STRING = new Literal(this, "string");
   this.BOOLEAN = new Literal(this, "boolean");
   this.DECIMAL = new Literal(this, "decimal");
   this.FLOAT = new Literal(this, "float");
@@ -1419,6 +1419,7 @@ function OntologyWriter_computeBindingImports(onto) {
   map["http://www.w3.org/2000/01/rdf-schema#"] = true;
   map["http://www.w3.org/1999/02/22-rdf-syntax-ns#"] = true;
   map["http://purl.org/semantictools/v1/vocab/bind#"] = true;
+  map["http://purl.org/vocab/vann/"] = true;
   map[onto.uri] = true;
   append(result, onto);
   
@@ -1446,8 +1447,10 @@ function OntologyWriter_printOntologyHeader(ontology) {
   if (ontology.label) {
     this.indent().println("rdfs:label \"" + ontology.label + "\" ;");
   }
-  this.indent().println("vann:preferredNamespaceUri \"" + ontology.uri + "\" ;")
-  this.indent().println("vann:preferredNamespacePrefix \"" + ontology.prefix + "\" .");
+//  this.indent().println("vann:preferredNamespaceUri \"" + ontology.uri + "\" ;")
+//  this.indent().println("vann:preferredNamespacePrefix \"" + ontology.prefix + "\" .");
+  this.indent().println("a bind:TargetNamespace ;")
+  this.indent().println("bind:suggestedPrefix \"" + ontology.prefix + "\" .");
   this.popIndent();
   
 }
@@ -2279,6 +2282,7 @@ function OntologyWriter_printImports() {
   this.addNamespace(list, new Namespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
   this.addNamespace(list, new Namespace("xsd",  "http://www.w3.org/2001/XMLSchema#"));
   this.addNamespace(list, new Namespace("bind", "http://purl.org/semantictools/v1/vocab/bind#"));
+  this.addNamespace(list, new Namespace("vann", "http://purl.org/vocab/vann/"));
   
   for (var i=0; i<list.length; i++) {
     var namespace = list[i];
@@ -2524,7 +2528,7 @@ function RdfClass_applyContainerRestrictions(property, containerClass) {
 
     // We found a unique match, so create the restrictions.
     
-    log(1);
+//    log(1);
     var predicate = this.ontology.universe.getMembershipPredicateProperty();
     var r = new RdfRestriction(predicate);
     r.hasValue = match;
@@ -3554,7 +3558,7 @@ function OntologyBuilder_buildEnums(umlPackage) {
     var rdfEnum = new RdfEnum(this.ontology, umlEnum.name, umlEnum.isExtensible, umlEnum.documentation);
     umlEnum.rdfClass = rdfEnum;
     rdfEnum.umlEnum = umlEnum;
-    this.universe.putRdfObject(umlEnum.Pathname, rdfEnum);
+//    this.universe.putRdfObject(umlEnum.Pathname, rdfEnum);
     for (var j=0; j<umlEnum.literalList.length; j++) {
       var value = umlEnum.literalList[j].name;
       var typeArray = new Array();
@@ -4376,6 +4380,8 @@ function XsdWriter_printXmlSchemaDeclarations() {
   var list = this.universe.simpleTypeSchemas;
   this.println("@prefix owl: <http://www.w3.org/2002/07/owl#> .");
   this.println("@prefix bind: <http://purl.org/semantictools/v1/vocab/bind#> .");
+  this.println("@prefix vann: <http://purl.org/vocab/vann/> .");
+
   for (var i=0; i<list.length; i++) {
     var schema = list[i];
     this.println();
