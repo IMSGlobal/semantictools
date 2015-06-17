@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,7 @@ import org.semantictools.context.renderer.model.ReferenceManager;
 import org.semantictools.context.renderer.model.SampleJson;
 
 public class ContextManager {
-  
+
 //  private static final Logger logger = LoggerFactory.getLogger(ContextManager.class);
 
   public static final String SKIP_VALIDATION = "skipValidation";
@@ -57,6 +57,7 @@ public class ContextManager {
   private static final String MIXED_VALUE = "mixedValue";
   private static final String STATUS = "status";
   private static final String DATE = "date";
+  private static final String VERSION = "version";
   private static final String ABSTRACT = "abstract";
   private static final String EDITORS = "editors";
   private static final String AUTHORS = "authors";
@@ -78,18 +79,18 @@ public class ContextManager {
   private static final String RESERVED_WORDS = "includeReservedWordsSection";
   private static final String MEDIA_TYPE_SECTION = "includeMediaTypeConformance";
   private static final String OVERVIEW_DIAGRAM = "includeOverviewDiagram";
-  
-  
+
+
   private MediaTypeFileManager fileManager;
   private Map<String, ContextProperties> contextMap = new HashMap<String, ContextProperties>();
-  
+
   private DocumentMetadata defaultMetadata;
-  
+
   public ContextManager(DocumentMetadata defaultMetadata, MediaTypeFileManager fileManager) {
     this.fileManager = fileManager;
     this.defaultMetadata = defaultMetadata;
   }
-  
+
   public MediaTypeFileManager getMediaTypeFileManager() {
     return fileManager;
   }
@@ -106,7 +107,7 @@ public class ContextManager {
    * @param propertiesFile
    * @throws IOException
    */
-  public void loadContextProperties(File propertiesFile) 
+  public void loadContextProperties(File propertiesFile)
     throws IOException, ContextPropertiesSyntaxException {
     Properties properties = new Properties();
     FileInputStream input = new FileInputStream(propertiesFile);
@@ -117,7 +118,7 @@ public class ContextManager {
       input.close();
     }
   }
-  
+
   public void loadAll(File baseDir) throws ContextPropertiesSyntaxException, IOException {
     File[] list = baseDir.listFiles();
     if (list == null) return;
@@ -130,7 +131,7 @@ public class ContextManager {
       }
     }
   }
-  
+
   /**
    * Generates the default name for a media type that contains the identifier
    * for a resource.  This is used as the media type for the response from a
@@ -142,15 +143,15 @@ public class ContextManager {
     if (plus < 0) return baseMediaType + ".id";
     return baseMediaType.substring(0, plus) + ".id" + baseMediaType.substring(plus);
   }
-  
+
   public String createIdMediaTypeRef(String typeName) {
     return "[" + typeName + "-id-media-type]";
   }
-  
+
   public ContextProperties getContextPropertiesByMediaType(String mediaType) {
     return contextMap.get(mediaType);
   }
-  
+
   public List<ContextProperties> listContextPropertiesForClass(String rdfClassURI) {
     List<ContextProperties> list = new ArrayList<ContextProperties>();
     for (ContextProperties p : contextMap.values()) {
@@ -160,7 +161,7 @@ public class ContextManager {
     }
     return list;
   }
-  
+
   public List<ContextProperties> listContextProperties() {
     return new ArrayList<ContextProperties>( contextMap.values() );
   }
@@ -168,18 +169,18 @@ public class ContextManager {
   private void parseProperties(File sourceFile, Properties properties) {
     ContextProperties sink = new ContextProperties(defaultMetadata, properties);
     sink.setSourceFile(sourceFile);
-    
+
     for (Map.Entry<Object, Object> e : properties.entrySet()) {
-      
+
       String key = e.getKey().toString();
       String value = e.getValue().toString();
-      
+
       if (key.startsWith("[")) {
         sink.putReference(key, value);
         continue;
       }
-      
-      
+
+
       if (CONTEXTURI.equals(key)) {
         sink.setContextURI(value);
       } else if (IDREF.equals(key)) {
@@ -214,6 +215,8 @@ public class ContextManager {
         sink.setStatus(value);
       } else if (DATE.equals(key)) {
         sink.setDate(value);
+      } else if (VERSION.equals(key)) {
+        sink.setVersion(value);
       } else if (ABSTRACT.equals(key)) {
         sink.setAbstactText(value);
       } else if (ENABLE_VERSION_HISTORY.equals(key)) {
@@ -231,7 +234,7 @@ public class ContextManager {
       } else if (SAMPLE_TEXT.equals(key)) {
         sink.setSampleText(value);
       } else if (EXCLUDE_TYPE.equals(key)) {
-        setExcludedTypes(sink, value);        
+        setExcludedTypes(sink, value);
       } else if (key.endsWith(INCLUDES_SUFFIX)) {
         addIncludesConstraint(sink, key, value);
       } else if (key.endsWith(EXCLUDES_SUFFIX)) {
@@ -262,15 +265,15 @@ public class ContextManager {
     }
     validate(sink);
     setDefaults(sink);
-    
+
   }
 
   private void setSimpleNames(ContextProperties sink, String value) {
     StringTokenizer tokenizer = new StringTokenizer(value, " \t\r\n");
     while (tokenizer.hasMoreElements()) {
       sink.addSimpleName(tokenizer.nextToken());
-    }    
-    
+    }
+
   }
 
   boolean toBoolean(String text) {
@@ -282,14 +285,14 @@ public class ContextManager {
     StringTokenizer tokenizer = new StringTokenizer(value, " \t\r\n");
     while (tokenizer.hasMoreElements()) {
       sink.addOptional(tokenizer.nextToken());
-    }    
+    }
   }
 
   private void setUsePrefix(ContextProperties sink, String value) {
     StringTokenizer tokenizer = new StringTokenizer(value, " \t\r\n");
     while (tokenizer.hasMoreElements()) {
       sink.addUsePrefix(tokenizer.nextToken());
-    }    
+    }
   }
 
   private void setSetProperties(ContextProperties sink, String value) {
@@ -313,7 +316,7 @@ public class ContextManager {
     while (tokenizer.hasMoreElements()) {
       sink.getRequiresId().add(tokenizer.nextToken());
     }
-    
+
   }
 
   private void setExcludedTypes(ContextProperties sink, String value) {
@@ -321,7 +324,7 @@ public class ContextManager {
     while (tokenizer.hasMoreElements()) {
       sink.getExcludedTypes().add(tokenizer.nextToken());
     }
-    
+
   }
 
   private void addCaption(ContextProperties sink, String key, String value) {
@@ -337,7 +340,7 @@ public class ContextManager {
     sample.setFileName(fileName);
     sample.setCaption(value);
     sink.getSampleJsonList().add(sample);
-    
+
   }
 
   private void setExpandedValue(ContextProperties sink, String value) {
@@ -346,50 +349,50 @@ public class ContextManager {
       String propertyURI = tokens.nextToken();
       sink.getExpandedValues().add(propertyURI);
     }
-    
+
   }
 
   private void addIncludesConstraint(ContextProperties sink, String key, String value) {
     int dot = key.lastIndexOf('.');
     String name = key.substring(0, dot);
-    
+
     FrameConstraints constraints = sink.fetchFrameConstraints(name);
     StringTokenizer tokens = new StringTokenizer(value, " \r\n\t");
     while (tokens.hasMoreTokens()) {
       String propertyURI = tokens.nextToken();
       constraints.addIncludedProperty(propertyURI);
     }
-    
-    
+
+
   }
 
   private void addExcludesConstraint(ContextProperties sink, String key, String value) {
     int dot = key.lastIndexOf('.');
     String name = key.substring(0, dot);
-    
+
     FrameConstraints constraints = sink.fetchFrameConstraints(name);
     StringTokenizer tokens = new StringTokenizer(value, " \r\n\t");
     while (tokens.hasMoreTokens()) {
       String propertyURI = tokens.nextToken();
       constraints.addExcludedProperty(propertyURI);
     }
-    
-    
+
+
   }
 
   private void addExcludeSubtypesConstraint(ContextProperties sink, String key,
       String value) {
-    
+
     int dot = key.lastIndexOf('.');
     String name = key.substring(0, dot);
-    
+
     FrameConstraints constraints = sink.fetchFrameConstraints(name);
     StringTokenizer tokens = new StringTokenizer(value, " \r\n\t");
     while (tokens.hasMoreTokens()) {
       String propertyURI = tokens.nextToken();
       constraints.addExcludesSubtype(propertyURI);
     }
-    
+
   }
 
   private void setDefaults(ContextProperties sink) {
@@ -397,14 +400,14 @@ public class ContextManager {
     setMediaTypeDocFile(sink);
     setMediaTypeReference(sink);
 //    setJsonLdContextReference(sink);
-    
-    
+
+
   }
-  
+
   private void setMediaTypeReference(ContextProperties properties) {
     ReferenceManager manager = properties.getReferenceManager();
     if (manager == null) return;
-    
+
     String mediaType = properties.getMediaType();
     String mediaTypeRef = properties.getMediaTypeRef();
     if (mediaTypeRef == null) {
@@ -422,7 +425,7 @@ public class ContextManager {
     }
     File localFile = fileManager.getMediaTypeDocumentationFile(mediaType);
     properties.setLocalFile(localFile);
-   
+
     BibliographicReference ref = new BibliographicReference();
     ref.setLabel(mediaTypeRef);
     ref.setAuthor(properties.getEditors());
@@ -430,10 +433,10 @@ public class ContextManager {
     ref.setDate(properties.getDate());
     ref.setEdition(properties.getStatus());
     ref.setLocalFile(localFile);
-    
+
     manager.add(ref);
-    
-    
+
+
   }
 
 private String getSuffix(String localName, String[] array) {
@@ -450,9 +453,9 @@ private String getSuffix(String localName, String[] array) {
 //    String contextRef = sink.getContextRef();
 //    if (contextRef == null) return;
 //    contextRef = contextRef.replace(" ", "&nbsp;");
-//    
+//
 //    if (sink.getReference(contextRef) != null) return;
-//    
+//
 //    StringBuilder builder = new StringBuilder();
 //    List<Person> authors = sink.getAuthors();
 //    String comma = "";
@@ -482,9 +485,9 @@ private String getSuffix(String localName, String[] array) {
 //    builder.append("URL: ");
 //    String contextURL = sink.getContextURI();
 //    builder.append(contextURL);
-//    
+//
 //    sink.putReference(contextRef, builder.toString());
-//    
+//
 //  }
 
   private void setMediaTypeDocFile(ContextProperties sink) {
@@ -495,7 +498,7 @@ private String getSuffix(String localName, String[] array) {
   private String getLocalName(String uri) {
     return TypeManager.getLocalName(uri);
   }
-  
+
   private void setTitle(ContextProperties sink) {
     if (sink.getTitle() == null) {
       String typeURI = sink.getRdfTypeURI();
@@ -510,7 +513,7 @@ private String getSuffix(String localName, String[] array) {
       }
       sink.setTitle(title);
     }
-    
+
   }
 
   private void setEditors(ContextProperties sink, String value) {
@@ -520,9 +523,9 @@ private String getSuffix(String localName, String[] array) {
       if (text.length()>0) {
         sink.addEditor(parsePerson(text));
       }
-      
+
     }
-    
+
   }
 
   private Person parsePerson(String line) {
@@ -546,26 +549,26 @@ private String getSuffix(String localName, String[] array) {
       if (text.length()>0) {
         sink.addAuthor(parsePerson(text));
       }
-      
+
     }
-    
+
   }
 
 
   private void validate(ContextProperties p) {
     StringBuilder error = new StringBuilder();
     validate(error, p);
-    
+
     if (error.length()>0) {
       throw new ContextPropertiesSyntaxException(error.toString());
     }
-    
+
     contextMap.put(p.getMediaType(), p);
-    
+
   }
 
   private void validate(StringBuilder error, ContextProperties p) {
-    
+
 //    if (p.getContextURI() == null) {
 //      append(error,  CONTEXTURI);
 //    }
@@ -575,11 +578,11 @@ private String getSuffix(String localName, String[] array) {
 //    if (p.getRdfTypeURI() == null) {
 //      append(error,  RDFTYPE);
 //    }
-    
+
   }
 
   private void append(StringBuilder error,  String propertyName) {
-    
+
     if (error.length() > 0) {
       error.append("\n");
     } else {
@@ -587,7 +590,7 @@ private String getSuffix(String localName, String[] array) {
     }
     error.append("  ");
     error.append(propertyName);
-    
+
   }
 
 
@@ -597,7 +600,7 @@ private String getSuffix(String localName, String[] array) {
       String propertyURI = tokens.nextToken();
       sink.addMixed(propertyURI);
     }
-    
+
   }
 
   private void setIdref(ContextProperties sink, String value) {
@@ -606,7 +609,7 @@ private String getSuffix(String localName, String[] array) {
       String idref = tokens.nextToken();
       sink.addIdRef(idref);
     }
-    
+
   }
 
 }

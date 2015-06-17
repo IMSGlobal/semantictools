@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import org.semantictools.frame.model.Uri;
 
 public class ServiceDocumentation extends BaseDocumentMetadata  {
 
-  
+
   private List<ContextProperties> contextPropertiesList = new ArrayList<ContextProperties>();
 
   private File serviceDocumentationFile;
@@ -34,7 +34,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   private Frame frame;
   private String postResponseMediaType;
   private String postResponseMediaTypeRef;
-  
+
   private String abstactText;
   private String introduction;
   private String representationHeading;
@@ -45,25 +45,26 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   private String htmlFormatDocumentation;
   private String defaultMediaType;
   private String postProcessingRules;
+  private boolean contentUnsigned;
   private boolean contentNegotiation;
-  
+
   private String getInstructions;
   private String putInstructions;
-  
+
   private Uri containerType;
-  
+
   private MethodDocumentation postDocumentation;
   private MethodDocumentation getDocumentation;
   private MethodDocumentation containerGetDocumentation;
   private MethodDocumentation putDocumentation;
   private MethodDocumentation deleteDocumentation;
-  
+
   private List<HttpMethod> methodList = new ArrayList<HttpMethod>();
   private List<String> putRules = new ArrayList<String>();
-  
+
   private Map<String, String> referenceMap = new HashMap<String, String>();
   private Map<String, String> mediaTypeUriMap = new HashMap<String, String>();
-  
+
   public ServiceDocumentation(DocumentMetadata global) {
     super(global);
   }
@@ -76,7 +77,21 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     this.setLocalFile(serviceDocumentationFile);
   }
 
-  
+
+  /**
+   * Returns true if the REST Service messages are not signed.
+   */
+  public boolean isContentUnsigned() {
+    return contentUnsigned;
+  }
+
+  /**
+   * Specifies whether the REST Service supports unsigned requests.
+   */
+  public void setContentUnsigned(boolean contentUnsigned) {
+    this.contentUnsigned = contentUnsigned;
+  }
+
   /**
    * Returns true if the REST Service supports content negotiation.
    */
@@ -109,9 +124,9 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     }
     return rdfType;
   }
-  
-  
-  
+
+
+
   private String getLocalName(String type) {
     if (type == null) {
       return null;
@@ -126,17 +141,17 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setRdfType(Uri rdfType) {
     this.rdfType = rdfType;
   }
-  
+
   public Map<String,String> getMediaTypeUriMap() {
     return mediaTypeUriMap;
   }
-  
+
   public boolean hasMultipleFormats() {
     int count = contextPropertiesList.size() + mediaTypeUriMap.size() + (allowHtmlFormat?1:0);
     return count > 1;
   }
-  
-  
+
+
   /**
    * Returns true if the REST API supports a user-friendly HTML representation
    * of the resource.
@@ -147,8 +162,8 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setAllowHtmlFormat(boolean allowHtmlFormat) {
     this.allowHtmlFormat = allowHtmlFormat;
   }
-  
-  
+
+
   /**
    * Returns the text that describes the text/html representation of the resource.
    */
@@ -163,7 +178,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     this.htmlFormatDocumentation = text;
   }
   /**
-   * Returns true if the REST API supports arbitrary formats for resources, 
+   * Returns true if the REST API supports arbitrary formats for resources,
    * and false otherwise.  If this value is true, then a client may POST
    * a resource in any format, and GET the resource back in the given format
    * through content negotiation.
@@ -171,8 +186,8 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public boolean isAllowArbitraryFormat() {
     return allowArbitraryFormat;
   }
-  
-  
+
+
   public String getUrlTemplateText() {
     return urlTemplateText;
   }
@@ -188,7 +203,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setAllowArbitraryFormat(boolean allowArbitraryFormat) {
     this.allowArbitraryFormat = allowArbitraryFormat;
   }
-  
+
   public String getAbstactText() {
     return abstactText;
   }
@@ -201,14 +216,14 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setIntroduction(String introduction) {
     this.introduction = introduction;
   }
-  
+
   public void add(ContextProperties context) {
     contextPropertiesList.add(context);
   }
   public List<ContextProperties> listContextProperties() {
     return contextPropertiesList;
   }
-  
+
   public String getRepresentationHeading() {
     return representationHeading;
   }
@@ -276,7 +291,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
    * Returns the text which describes how to GET a representation.
    * The default text is:
    * <blockquote>
-   * To get a representation of a particular {0} instance, the client submits an HTTP GET 
+   * To get a representation of a particular {0} instance, the client submits an HTTP GET
    * request to the resource's REST endpoint in accordance with the following rules:
    * </blockquote>
    * @return
@@ -287,7 +302,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setGetInstructions(String getInstructions) {
     this.getInstructions = getInstructions;
   }
-  
+
   public List<String> getPutRules() {
     return putRules;
   }
@@ -322,7 +337,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setFrame(Frame frame) {
     this.frame = frame;
   }
-  
-  
+
+
 
 }
