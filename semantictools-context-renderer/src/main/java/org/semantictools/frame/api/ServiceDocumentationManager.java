@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 
 import org.semantictools.context.renderer.model.ContextProperties;
 import org.semantictools.context.renderer.model.DocumentMetadata;
+import org.semantictools.context.renderer.model.Revision;
 import org.semantictools.context.renderer.model.HttpMethod;
 import org.semantictools.context.renderer.model.MethodDocumentation;
 import org.semantictools.context.renderer.model.Person;
@@ -68,6 +69,7 @@ public class ServiceDocumentationManager {
   private static final String GET_REQUEST_HEADERS = "GET.requestHeaders";
   private static final String GET_STATUS = "GET.status.";
   private static final String GET_SUMMARY = "GET.summary";
+  private static final String REVISIONS = "revisions";
   private static final String HTML_FORMAT_DOCUMENTATION = "htmlFormatDocumentation";
   private static final String INTRODUCTION = "introduction";
   private static final String MEDIATYPE = "mediaType";
@@ -195,6 +197,8 @@ public class ServiceDocumentationManager {
         sink.setHistoryLink("true".equalsIgnoreCase(value));
       } else if (AUTHORS.equals(key)) {
         setAuthors(sink, value);
+      } else if (REVISIONS.equals(key)) {
+        setRevisions(sink, value);
       } else if (INTRODUCTION.equals(key)) {
         sink.setIntroduction(value);
       }  else if (METHODS.equals(key)) {
@@ -494,6 +498,39 @@ public class ServiceDocumentationManager {
 
   }
 
+  private Revision parseRevision(String line) {
+    String version = line;
+    String date = null;
+    String comment = null;
+    int comma = line.indexOf(',');
+    if (comma > 0) {
+      version = line.substring(0, comma).trim();
+      line = line.substring(comma+1).trim();
+      date = line;
+    }
+    comma = line.indexOf(',');
+    if (comma > 0) {
+      date = line.substring(0, comma).trim();
+      comment = line.substring(comma+1).trim();
+    }
+    Revision revision = new Revision();
+    revision.setVersion(version);
+    revision.setDate(date);
+    revision.setComment(comment);
+    return revision;
+  }
+
+  private void setRevisions(ServiceDocumentation sink, String value) {
+    StringTokenizer tokens = new StringTokenizer(value, "\n");
+    while (tokens.hasMoreTokens()) {
+      String text = tokens.nextToken().trim();
+      if (text.length()>0) {
+        sink.addRevision(parseRevision(text));
+      }
+
+    }
+
+  }
 
 
 

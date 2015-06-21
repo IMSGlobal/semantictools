@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseDocumentMetadata implements DocumentMetadata {
-  
+
   private File localFile;
   private String logo;
   private String date;
@@ -42,11 +42,12 @@ public class BaseDocumentMetadata implements DocumentMetadata {
   protected List<Person> authorList;
   protected List<Person> cochairList;
   protected List<Person> editorList;
+  protected List<Revision> revisionList;
   protected ReferenceManager refManager;
   protected Boolean validateJsonSamples;
-  
+
   private DocumentMetadata parent;
-  
+
   public BaseDocumentMetadata() {}
 
   public BaseDocumentMetadata(DocumentMetadata parent) {
@@ -57,7 +58,7 @@ public class BaseDocumentMetadata implements DocumentMetadata {
   public DocumentMetadata getParent() {
     return parent;
   }
-  
+
   @Override
   public void setParent(DocumentMetadata parent) {
     this.parent = parent;
@@ -222,9 +223,22 @@ public class BaseDocumentMetadata implements DocumentMetadata {
     return cochairList==null && parent!=null ? parent.getCoChairs() : cochairList;
   }
 
+  @Override
+  public void addRevision(Revision revision) {
+    if (revisionList == null) {
+      revisionList = new ArrayList<Revision>();
+    }
+    revisionList.add(revision);
+  }
+
+  @Override
+  public List<Revision> getRevisions() {
+    return revisionList;
+  }
+
 //  @Override
 //  public String getReference(String citationLabel) {
-//    
+//
 //    String result = referenceMap.get(citationLabel);
 //    if (result == null && parent != null) {
 //      result = referenceMap.get(citationLabel);
@@ -241,8 +255,8 @@ public class BaseDocumentMetadata implements DocumentMetadata {
 //    }
 //
 //  }
-  
-  
+
+
 
   @Override
   public ReferenceManager getReferenceManager() {
@@ -259,8 +273,8 @@ public class BaseDocumentMetadata implements DocumentMetadata {
     Boolean value = historyLink==null && parent!=null ? parent.hasHistoryLink() : historyLink;
     return value==null ? Boolean.FALSE : value;
   }
-  
-  @Override 
+
+  @Override
   public void setHistoryLink(Boolean truth) {
     historyLink = truth;
   }
@@ -269,7 +283,7 @@ public class BaseDocumentMetadata implements DocumentMetadata {
   public String getTemplateName() {
     return templateName==null && parent!=null ? parent.getTemplateName() : templateName;
   }
-  
+
   @Override
   public void setTemplateName(String name) {
     templateName = name;
@@ -290,12 +304,12 @@ public class BaseDocumentMetadata implements DocumentMetadata {
 
     ReferenceManager manager = getReferenceManager();
     if (manager == null) return;
-    
+
     BibliographicReference ref = BibliographicReference.parse(referenceText);
     ref.setLabel(label);
-    
+
     manager.add(ref);
-    
+
   }
 
   @Override

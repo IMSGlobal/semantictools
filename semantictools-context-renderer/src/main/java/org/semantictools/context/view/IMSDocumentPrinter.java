@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,29 +18,30 @@ package org.semantictools.context.view;
 import java.util.List;
 
 import org.semantictools.context.renderer.model.Person;
+import org.semantictools.context.renderer.model.Revision;
 
 public class IMSDocumentPrinter extends DefaultDocumentPrinter {
 
   public IMSDocumentPrinter(PrintContext context) {
     super(context);
   }
-  
+
   @Override
   protected void printTitlePageEditors() {}
-  
+
   @Override
   protected void printTitlePageAuthors() {}
-  
+
 
   public void printFooter() {
-    
+
     println("<hr/>");
     Heading heading = createHeading("About this Document");
     heading.setShowNumber(false);
     beginSection(heading);
-    
+
     String title = metadata.getTitle().replace("<br>", " ").replace("<br/>", " ");
-    
+
     indent().println("<table class=\"about\">");
     pushIndent();
     indent().println("<tr>");
@@ -56,17 +57,18 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
     printDocumentLocation();
     popIndent();
     indent().println("</table>");
-    
+
     printContributors();
+    printRevisions();
     super.printFooter();
     endSection();
   }
 
   private void printContributors() {
-    
+
     List<Person> list = metadata.getAuthors();
     if (list==null || list.isEmpty()) return;
-    
+
     Heading heading = createHeading("List of Contributors");
     heading.setInToc(false);
     heading.setShowNumber(false);
@@ -79,7 +81,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
       int j = max + i;
       Person left = list.get(i);
       Person right = (j<list.size()) ? list.get(j) : null;
-      
+
       indent().println("<tr>");
       pushIndent();
       indent();
@@ -88,16 +90,47 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
       println();
       popIndent();
       indent().println("</tr>");
-      
+
     }
     popIndent();
     println("</table>");
     endSection();
-    
+
+  }
+
+  private void printRevisions() {
+
+    List<Revision> list = metadata.getRevisions();
+    if (list==null || list.isEmpty()) return;
+
+    Heading heading = createHeading("Revision History");
+    heading.setInToc(false);
+    heading.setShowNumber(false);
+    beginSection(heading);
+    println("<p>The following changes have been made to this document since it was first released:</p>");
+    println("<table class=\"about\">");
+    pushIndent();
+    indent().println("<tr><th>Version</th><th>Date</th><th>Comment</th></tr>");
+    for (int i=0; i<list.size(); i++) {
+      Revision revision = list.get(i);
+
+      indent().println("<tr>");
+      pushIndent();
+      indent();
+      printRevision(revision);
+      println();
+      popIndent();
+      indent().println("</tr>");
+
+    }
+    popIndent();
+    println("</table>");
+    endSection();
+
   }
 
   private void printPersonInTable(Person person) {
-    
+
    print("<td>");
    if (person != null) {
      print(person.getPersonName());
@@ -107,7 +140,25 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
      print(person.getOrgName());
    }
    print("</td>");
-    
+
+  }
+
+  private void printRevision(Revision revision) {
+
+   print("<td valign=\"top\">");
+   if (revision != null) {
+     print(revision.getVersion());
+   }
+   print("</td><td valign=\"top\">");
+   if (revision != null && revision.getDate()!=null) {
+     print(revision.getDate());
+   }
+   print("</td><td>");
+   if (revision != null && revision.getComment()!=null) {
+     print(revision.getComment());
+   }
+   print("</td>");
+
   }
 
   private void printDocumentLocation() {
@@ -117,7 +168,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
     indent().println("<tr>");
     pushIndent().print("<th>").print("Document Location: ").print("</td><td>").print(location).println("</td>");
     indent().println("</tr>");
-    
+
   }
   private void printPurpose() {
     String purpose = metadata.getPurpose();
@@ -126,7 +177,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
     indent().println("<tr>");
     pushIndent().print("<th>").print("Purpose: ").print("</td><td>").print(purpose).println("</td>");
     indent().println("</tr>");
-    
+
   }
 
   private void printAboutStatus() {
@@ -136,7 +187,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
     indent().println("<tr>");
     pushIndent().print("<th>").print("Status: ").print("</td><td>").print(status).println("</td>");
     indent().println("</tr>");
-    
+
   }
 
   private void printRelease() {
@@ -156,7 +207,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
     pushIndent().print("<th>").print("Version: ").print("</td><td>").print(version).println("</td>");
     indent().println("</tr>");
   }
-  
+
   private void printVersionDate() {
     String date = metadata.getDate();
     if (date == null) return;
@@ -169,7 +220,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
   public void printEditors() {
     List<Person> list = metadata.getEditors();
     if (list == null || list.isEmpty()) return;
-    
+
     String label = (list.size()>1) ? "Editors: " : "Editor:";
 
     indent().println("<tr>");
@@ -184,7 +235,7 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
         print(" (").print(orgName).print(")");
       }
     }
-    
+
     println("</td>");
     indent().println("</tr>");
   }
@@ -205,9 +256,9 @@ public class IMSDocumentPrinter extends DefaultDocumentPrinter {
         print(" (").print(orgName).print(")");
       }
     }
-    
+
     println("</td>");
     indent().println("</tr>");
-    
+
   }
 }

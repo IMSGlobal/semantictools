@@ -30,6 +30,7 @@ import org.semantictools.context.renderer.model.BibliographicReference;
 import org.semantictools.context.renderer.model.ContextProperties;
 import org.semantictools.context.renderer.model.DocumentMetadata;
 import org.semantictools.context.renderer.model.FrameConstraints;
+import org.semantictools.context.renderer.model.Revision;
 import org.semantictools.context.renderer.model.Person;
 import org.semantictools.context.renderer.model.ReferenceManager;
 import org.semantictools.context.renderer.model.SampleJson;
@@ -61,6 +62,7 @@ public class ContextManager {
   private static final String ABSTRACT = "abstract";
   private static final String EDITORS = "editors";
   private static final String AUTHORS = "authors";
+  private static final String REVISIONS = "revisions";
   private static final String TITLE = "title";
   private static final String SAMPLE_TEXT = "sampleText";
   private static final String EXCLUDE_TYPE = "excludeType";
@@ -225,6 +227,8 @@ public class ContextManager {
         setEditors(sink, value);
       } else if (AUTHORS.equals(key)) {
         setAuthors(sink, value);
+      } else if (REVISIONS.equals(key)) {
+        setRevisions(sink, value);
       } else if (INTRODUCTION.equals(key)) {
         sink.setIntroduction(value);
       } else if (TITLE.equals(key)) {
@@ -548,6 +552,40 @@ private String getSuffix(String localName, String[] array) {
       String text = tokens.nextToken().trim();
       if (text.length()>0) {
         sink.addAuthor(parsePerson(text));
+      }
+
+    }
+
+  }
+
+  private Revision parseRevision(String line) {
+    String version = line;
+    String date = null;
+    String comment = null;
+    int comma = line.indexOf(',');
+    if (comma > 0) {
+      version = line.substring(0, comma).trim();
+      line = line.substring(comma+1).trim();
+      date = line;
+    }
+    comma = line.indexOf(',');
+    if (comma > 0) {
+      date = line.substring(0, comma).trim();
+      comment = line.substring(comma+1).trim();
+    }
+    Revision revision = new Revision();
+    revision.setVersion(version);
+    revision.setDate(date);
+    revision.setComment(comment);
+    return revision;
+  }
+
+  private void setRevisions(ContextProperties sink, String value) {
+    StringTokenizer tokens = new StringTokenizer(value, "\n");
+    while (tokens.hasMoreTokens()) {
+      String text = tokens.nextToken().trim();
+      if (text.length()>0) {
+        sink.addRevision(parseRevision(text));
       }
 
     }
