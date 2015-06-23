@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,50 +20,54 @@ import java.util.List;
 
 public class ResponseInfo {
   public final static ResponseInfo OK = new ResponseInfo(200, "OK", "The request was successful.");
-  
-  public final static ResponseInfo CREATED = new ResponseInfo(201, "Created", 
+
+  public final static ResponseInfo CREATED = new ResponseInfo(201, "Created",
       "The request has succeeded; the supplied resource was created.");
-  
-  public final static ResponseInfo ACCEPTED = new ResponseInfo(202, "Accepted", 
+
+  public final static ResponseInfo ACCEPTED = new ResponseInfo(202, "Accepted",
       "The request has been accepted for processing, but the processing has not been completed. " +
       "The request might or might not eventually be acted upon, as it might be disallowed when " +
       "processing actually takes place. There is no facility for re-sending a status code from " +
       "an asynchronous operation such as this.");
-  
-  public final static ResponseInfo SEE_OTHER = new ResponseInfo(303, "See Other", 
+
+  public final static ResponseInfo SEE_OTHER = new ResponseInfo(303, "See Other",
       "The correct response can be found under the URI specified by the LOCATION header.  This status " +
       "indicates that the requested entity itself cannot be delivered by the server, but there is a " +
       "related resource that contains information about or related to the requested entity at the " +
       "specified LOCATION.");
-  
-  public final static ResponseInfo MOVED_PERMANENTLY = new ResponseInfo(301, "Moved Permanently", 
+
+  public final static ResponseInfo MOVED_PERMANENTLY = new ResponseInfo(301, "Moved Permanently",
       "The URI for the requested resource has changed.  <p>In this case, the response body is empty, " +
       "and the new URI is provided in the <code>Location</code> header.  The client should " +
       "GET the resource from the new location, and furthermore, it should send all future requests " +
       "to the new location as well.</p>");
-  
+
   public final static ResponseInfo TEMPORARY_REDIRECT = new ResponseInfo(307, "Temporary Redirect",
       "The requested resource resides temporarily under a different URI.  <p>In this case, the response " +
       "body is empty, and the temporary URI is defined by the <code>Location</code> header field. " +
       "The client should GET the resource at the temporary URI, but future requests should continue " +
       "to be sent to the original URI.</p>");
-  
-  public final static ResponseInfo NOT_FOUND = new ResponseInfo(404, "Not Found", 
+
+  public final static ResponseInfo NOT_FOUND = new ResponseInfo(404, "Not Found",
       "The server has not found anything matching the request URI.");
-  
+
   public final static ResponseInfo BAD_REQUEST = new ResponseInfo(400, "Bad Request",
       "The request could not be understood by the server due to malformed syntax. " +
       "The client SHOULD NOT repeat the request without modifications.");
-  
+
   public final static ResponseInfo UNAUTHORIZED = new ResponseInfo(401, "Unauthorized",
       "The client did not authenticate properly.");
-  public final static ResponseInfo INTERNAL_SERVER_ERROR = new ResponseInfo(500, "Internal Service Error", 
+
+  public final static ResponseInfo INTERNAL_SERVER_ERROR = new ResponseInfo(500, "Internal Service Error",
       "The server encountered an unexpected condition which prevented it from fulfilling the request.");
-  
+
   public final static ResponseInfo NOT_ACCEPTABLE = new ResponseInfo(406, "Not Acceptable",
       "The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request.");
-  
-  
+
+  public final static ResponseInfo FORBIDDEN = new ResponseInfo(403, "Forbidden",
+      "The request was valid but the server is refusing to allow it at this time.");
+
+
   public static final List<ResponseInfo> all = new ArrayList<ResponseInfo>();
   static {
     all.add(ACCEPTED);
@@ -73,16 +77,17 @@ public class ResponseInfo {
     all.add(MOVED_PERMANENTLY);
     all.add(NOT_ACCEPTABLE);
     all.add(NOT_FOUND);
+    all.add(FORBIDDEN);
     all.add(OK);
     all.add(SEE_OTHER);
     all.add(TEMPORARY_REDIRECT);
     all.add(UNAUTHORIZED);
   }
-  
+
   private int code;
   private String label;
   private String description;
-  
+
   public ResponseInfo(int code, String label, String description) {
     this.code = code;
     this.label = label;
@@ -100,13 +105,13 @@ public class ResponseInfo {
   public String getDescription() {
     return description;
   }
-  
+
   public ResponseInfo copy(String description) {
     return new ResponseInfo(code, label, description);
   }
-  
-  
-  
-  
+
+
+
+
 
 }

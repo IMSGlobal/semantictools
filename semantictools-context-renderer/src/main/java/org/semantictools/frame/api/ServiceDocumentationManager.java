@@ -90,6 +90,7 @@ public class ServiceDocumentationManager {
   private static final String TITLE = "title";
   private static final String URL_TEMPLATES = "urlTemplates";
   private static final String VERSION = "version";
+  private static final String FORBIDDEN_METHOD = ".response.forbidden";
 
   private Map<String, ServiceDocumentationList> map = new HashMap<String, ServiceDocumentationList>();
   private ContextManager contextManager;
@@ -233,6 +234,10 @@ public class ServiceDocumentationManager {
         setPutRules(sink, value);
       } else if (POST_CREATED_DESCRIPTION.equals(key)) {
         methodInfo.setPostCreatedDescription(value);
+      } else if (key.endsWith(FORBIDDEN_METHOD)) {
+        if ("true".equalsIgnoreCase(value)) {
+          sink.addForbiddenMethod(key.split("\\.")[0]);
+        }
       }
     }
 
@@ -753,6 +758,9 @@ public class ServiceDocumentationManager {
 
     }
 
+    if (doc.hasForbiddenMethod("GET")) {
+      addResponse(method, ResponseInfo.FORBIDDEN);
+    }
 
     addResponse(method, ResponseInfo.UNAUTHORIZED);
     addResponse(method, ResponseInfo.MOVED_PERMANENTLY);
@@ -863,6 +871,10 @@ public class ServiceDocumentationManager {
         method.add(info);
       }
 
+      if (doc.hasForbiddenMethod("PUT")) {
+        addResponse(method, ResponseInfo.FORBIDDEN);
+      }
+
       addResponse(method, ResponseInfo.UNAUTHORIZED);
       addResponse(method, ResponseInfo.NOT_FOUND);
       addResponse(method, ResponseInfo.INTERNAL_SERVER_ERROR);
@@ -942,6 +954,10 @@ public class ServiceDocumentationManager {
         method.add(info);
       }
 
+      if (doc.hasForbiddenMethod("DELETE")) {
+        addResponse(method, ResponseInfo.FORBIDDEN);
+      }
+
       addResponse(method, ResponseInfo.UNAUTHORIZED);
       addResponse(method, ResponseInfo.NOT_FOUND);
       addResponse(method, ResponseInfo.INTERNAL_SERVER_ERROR);
@@ -1018,6 +1034,9 @@ public class ServiceDocumentationManager {
 
     method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the OAuth Body Hash Protocol</em>");
 
+    if (doc.hasForbiddenMethod("POST")) {
+      addResponse(method, ResponseInfo.FORBIDDEN);
+    }
 
     addResponse(method, ResponseInfo.CREATED.copy(createdDescription));
     addResponse(method, ResponseInfo.BAD_REQUEST);

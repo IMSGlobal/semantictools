@@ -61,6 +61,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
 
   private List<HttpMethod> methodList = new ArrayList<HttpMethod>();
   private List<String> putRules = new ArrayList<String>();
+  private List<String> forbiddenMethodList = new ArrayList<String>();
 
   private Map<String, String> referenceMap = new HashMap<String, String>();
   private Map<String, String> mediaTypeUriMap = new HashMap<String, String>();
@@ -105,6 +106,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   public void setContentNegotiation(boolean contentNegotiation) {
     this.contentNegotiation = contentNegotiation;
   }
+
   public String getDefaultMediaType() {
     return defaultMediaType;
   }
@@ -287,6 +289,17 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     }
     return null;
   }
+
+  public List<String> getForbiddenMethodList() {
+    return forbiddenMethodList;
+  }
+  public void addForbiddenMethod(String method) {
+    forbiddenMethodList.add(method.toUpperCase());
+  }
+  public boolean hasForbiddenMethod(String method) {
+    return forbiddenMethodList.contains(method.toUpperCase());
+  }
+
   /**
    * Returns the text which describes how to GET a representation.
    * The default text is:
