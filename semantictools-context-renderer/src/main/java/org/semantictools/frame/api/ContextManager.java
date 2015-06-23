@@ -64,6 +64,7 @@ public class ContextManager {
   private static final String AUTHORS = "authors";
   private static final String REVISIONS = "revisions";
   private static final String TITLE = "title";
+  private static final String SUBTITLE = "subtitle";
   private static final String SAMPLE_TEXT = "sampleText";
   private static final String EXCLUDE_TYPE = "excludeType";
   private static final String INTRODUCTION = "introduction";
@@ -233,6 +234,8 @@ public class ContextManager {
         sink.setIntroduction(value);
       } else if (TITLE.equals(key)) {
         sink.setTitle(value);
+      } else if (SUBTITLE.equals(key)) {
+        sink.setSubtitle(value);
       } else if (SIMPLE_NAMES.equals(key)) {
         setSimpleNames(sink, value);
       } else if (SAMPLE_TEXT.equals(key)) {
