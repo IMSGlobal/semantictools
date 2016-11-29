@@ -90,6 +90,7 @@ public class ServiceDocumentationManager {
   private static final String TITLE = "title";
   private static final String URL_TEMPLATES = "urlTemplates";
   private static final String VERSION = "version";
+  private static final String RELEASE = "release";
   private static final String FORBIDDEN_METHOD = ".response.forbidden";
 
   private Map<String, ServiceDocumentationList> map = new HashMap<String, ServiceDocumentationList>();
@@ -190,6 +191,8 @@ public class ServiceDocumentationManager {
         sink.setDate(value);
       } else if (VERSION.equals(key)) {
         sink.setVersion(value);
+      } else if (RELEASE.equals(key)) {
+        sink.setRelease(value);
       } else if (ABSTRACT.equals(key)) {
         sink.setAbstactText(value);
       } else if (EDITORS.equals(key)) {

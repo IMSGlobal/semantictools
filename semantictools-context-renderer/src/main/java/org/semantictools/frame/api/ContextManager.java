@@ -59,6 +59,7 @@ public class ContextManager {
   private static final String STATUS = "status";
   private static final String DATE = "date";
   private static final String VERSION = "version";
+  private static final String RELEASE = "release";
   private static final String ABSTRACT = "abstract";
   private static final String EDITORS = "editors";
   private static final String AUTHORS = "authors";
@@ -220,6 +221,8 @@ public class ContextManager {
         sink.setDate(value);
       } else if (VERSION.equals(key)) {
         sink.setVersion(value);
+      } else if (RELEASE.equals(key)) {
+        sink.setRelease(value);
       } else if (ABSTRACT.equals(key)) {
         sink.setAbstactText(value);
       } else if (ENABLE_VERSION_HISTORY.equals(key)) {
