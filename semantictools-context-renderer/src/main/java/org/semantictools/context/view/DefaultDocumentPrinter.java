@@ -144,8 +144,12 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     String status = metadata.getStatus();
     if (status == null) return;
     
+    String className = "status";
+    if (status.toLowerCase().contains("draft")) {
+      className += " draft";
+    }
     print("<div ");
-    printAttr("class", "status");
+    printAttr("class", className);
     print(">");
     print(status);
     println("</div>");

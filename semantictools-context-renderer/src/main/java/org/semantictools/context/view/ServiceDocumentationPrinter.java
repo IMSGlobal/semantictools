@@ -58,7 +58,6 @@ public class ServiceDocumentationPrinter extends HtmlPrinter implements HeadingP
     
     
     printer.beginHTML();
-    printStatus();
     printer.printTitlePage();
     printAbstract();
     printer.printTableOfContentsMarker();
@@ -74,19 +73,6 @@ public class ServiceDocumentationPrinter extends HtmlPrinter implements HeadingP
     printer.insertTableOfContents();
     
     return printer.popText();
-  }
-
-
-  private void printStatus() {
-    String status = doc.getStatus();
-    if (status == null) return;
-    
-    print("<div ");
-    printAttr("class", "status");
-    print(">");
-    print(status);
-    println("</div>");
-    
   }
 
   private void printUrlTemplates() {

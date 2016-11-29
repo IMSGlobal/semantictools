@@ -234,7 +234,7 @@ TABLE.propertiesTable TH {
   text-align: right;
   padding-top: 2px;
   padding-right: 2em;
-  background-color: red;
+  background-color: blue;
   color: white;
   font-size: 20px;
   transform-origin: left top;
@@ -247,4 +247,8 @@ TABLE.propertiesTable TH {
   -moz-transform: rotate(-90deg) translate(-100%, 0%);
   -o-transform-origin: left top;
   -o-transform: rotate(-90deg) translate(-100%, 0%);
+}
+
+.draft {
+  background-color: red;
 }
