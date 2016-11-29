@@ -34,6 +34,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   private Frame frame;
   private String postResponseMediaType;
   private String postResponseMediaTypeRef;
+  private String putResponseMediaType;
 
   private String abstactText;
   private String introduction;
@@ -267,6 +268,12 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
   }
   public void setPutDocumentation(MethodDocumentation putDocumentation) {
     this.putDocumentation = putDocumentation;
+  }
+  public String getPutResponseMediaType() {
+    return putResponseMediaType;
+  }
+  public void setPutResponseMediaType(String putResponseType) {
+    this.putResponseMediaType = putResponseType;
   }
   public MethodDocumentation getDeleteDocumentation() {
     return deleteDocumentation;
