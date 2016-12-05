@@ -658,6 +658,9 @@ public class ServiceDocumentationManager {
     if (list.isEmpty()) {
       list.add(containerFormat);
     }
+    if (doc.isContentNegotiation()) {
+      method.addRequestHeader("Content-Type", containerFormat);
+    }
 
 
     // Request Headers
