@@ -612,7 +612,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
     beginCodeSnippet();
     println("  {");
-    println("    \"@context\" = {");
+    println("    \"@context\" : {");
     println("      ...");
     printTerm(term);
     println();
@@ -678,7 +678,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
     beginCodeSnippet();
     println("  {");
-    println("    \"@context\" = {");
+    println("    \"@context\" : {");
 
     if (!prefix.equals(namespace)) {
       print("      \"").print(prefix).print("\" : \"").print(namespace)
@@ -877,6 +877,7 @@ public class ContextHtmlPrinter extends PrintEngine {
     if (captionRef == null) {
       caption = captionRef = new Caption(CaptionType.Figure,
           "Property whose value is a URI reference", "uriRef", field.getURI());
+      assignNumber(caption);
     }
 
     indent()
@@ -888,7 +889,7 @@ public class ContextHtmlPrinter extends PrintEngine {
 
     if (caption == null)
       return;
-    assignNumber(caption);
+//    assignNumber(caption);
 
     String src = namer.getImagesDir() + "/uriRef.png";
     TreeNode node = treeGenerator.generateNode(field);
@@ -1411,7 +1412,7 @@ public class ContextHtmlPrinter extends PrintEngine {
     printAttr("class", "caption");
     println(">");
     print(caption.getNumber());
-    print(".&nbsp&nbsp;");
+    print(".&nbsp;&nbsp;");
     print(caption.getText());
     indent().println("</DIV>");
 

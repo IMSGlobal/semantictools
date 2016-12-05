@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Pearson Education
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,7 @@ import org.semantictools.frame.api.LinkManager;
 public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrinter {
 
   protected static final String TOC_MARKER = "<!-- TOC -->";
-  
+
   protected DocumentMetadata metadata;
   private ClassificationPrinter classificationPrinter;
 
@@ -48,17 +48,17 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
   private int h3;
   private int figureNumber;
   private int tableNumber;
-  
+
   public DefaultDocumentPrinter() {
     this(null);
   }
-  
+
   public DefaultDocumentPrinter(PrintContext context) {
     super(context);
     clear();
   }
-  
-  
+
+
   @Override
   public void clear() {
     topHeading = new Heading(Level.H1, "", "");
@@ -74,27 +74,27 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
 
 
   }
-  
+
 
   static class CaptionManager {
     Map<String, Caption> uri2FigureCaption = new HashMap<String, Caption>();
-    
+
     public void add(Caption caption) {
       if (caption.getUri() == null) return;
-      
+
       switch (caption.getType()) {
       case Figure :
         uri2FigureCaption.put(caption.getUri(), caption);
         break;
       }
     }
-    
+
     public Caption getFigureCaptionByURI(String uri) {
       return uri2FigureCaption.get(uri);
     }
-    
+
   }
-  
+
 
   public ClassificationPrinter getClassificationPrinter() {
     return classificationPrinter;
@@ -103,8 +103,8 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
   public void setClassificationPrinter(ClassificationPrinter classificationPrinter) {
     this.classificationPrinter = classificationPrinter;
   }
-  
-  @Override 
+
+  @Override
   public PrintContext getPrintContext() {
     return context;
   }
@@ -134,7 +134,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     printTitlePageEditors();
     printTitlePageAuthors();
     printLegalNotice();
-   
+
     indent().println("<HR/>");
 
   }
@@ -143,7 +143,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
 
     String status = metadata.getStatus();
     if (status == null) return;
-    
+
     String className = "status";
     if (status.toLowerCase().contains("draft")) {
       className += " draft";
@@ -153,9 +153,9 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     print(">");
     print(status);
     println("</div>");
-    
+
   }
-  
+
   protected void printTitlePageAuthors() {
     printAuthors();
   }
@@ -177,7 +177,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
         println("</DIV>");
       }
     }
-    
+
   }
 
   protected void printTitlePageEditors() {
@@ -201,7 +201,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
         println("</DIV>");
       }
     }
-    
+
   }
 
   protected void printVersionHistory() {
@@ -212,7 +212,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
       printAttr("class", "contributorLabel");
       println(">See Also: <a href=\"index.html?history\">Version History</a></DIV>");
     }
-    
+
   }
 
   /**
@@ -230,62 +230,62 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     if (legalNotice != null) {
       print(legalNotice);
     }
-    
+
   }
 
   protected void printLatestVersion() {
     String latestVersionURI = metadata.getLatestVersionURI();
     if (latestVersionURI == null) return;
-    
+
     indent().print("<div class=\"titlePageData\">Latest version: ");
     print("<a");
     printAttr("href", latestVersionURI);
     print(">");
     print(latestVersionURI);
     println("</a></div>");
-    
+
   }
-  
+
   protected void printDateIssued() {
     // By default, the date issued appears in the
     // subtitle.  We print a separate date issued property only if
     // the subtitle is declared explicitly.
-    
+
     if (metadata.getSubtitle() != null) {
       String date = metadata.getDate();
       if (date == null) return;
-      
+
       indent().print("<div class=\"titlePageData\">Date Issued: ").print(date);
       println("</div>");
     }
-    
+
   }
 
   protected void printLogo() {
-    
+
     String logo = metadata.getLogo();
     if (logo == null) return;
-    
+
     print("<p><img ");
     printAttr("src", logo);
     println("></p>");
-    
+
   }
-  
+
 
   protected void printSubtitle() {
-    
+
     String subtitle = metadata.getSubtitle();
     if (subtitle == null) {
 
       String status = metadata.getStatus();
-      
+
       String date = metadata.getDate();
-      subtitle =  
+      subtitle =
           (status !=null && date !=null) ? status + " " + date :
           (status != null) ? status :
           (date != null) ? date :
-          null; 
+          null;
     }
 
 
@@ -301,7 +301,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     indent().print("<H1>");
     print(title);
     println("</H1>");
-    
+
   }
 
   @Override
@@ -320,12 +320,12 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
       currentHeading = new Heading(Level.H1, text, text.replace(' ', '_') );
       return currentHeading;
     }
-    
+
     Level level = currentHeading.getLevel().getNextLevel();
-    
+
     Heading result = new Heading(level, text, text.replace(' ', '_'));
     currentHeading.add(result);
-    
+
     return result;
   }
 
@@ -349,7 +349,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
       break;
     }
 
-    
+
     heading.setHeadingNumber(number);
 
     indent().print("<" + level);
@@ -367,7 +367,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
 
   }
 
-  
+
 
   @Override
   public void beginSection(Heading heading) {
@@ -382,10 +382,10 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     case H2:
       h3 = 0;
       break;
-      
+
     case H1:
       h2 = 0;
-      
+
     }
     currentHeading = currentHeading.getParent();
   }
@@ -394,7 +394,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
   public void printTableOfContentsMarker() {
     println(TOC_MARKER);
   }
-  
+
   protected void printHeadings(List<Heading> toc) {
     if (toc == null)
       return;
@@ -432,10 +432,10 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
   public void printReferences() {
 
     printReferences(null);
-    
-    
+
+
   }
-  
+
 
 
   private DefaultDocumentPrinter printReferenceAnchor(BibliographicReference r) {
@@ -454,7 +454,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
       String id = ref.getId();
       String htmlLabel = ref.htmlLabel();
       String textLabel = ref.textLabel();
-      
+
       String link = citationLink(htmlLabel, id);
       text = text.replace(htmlLabel, link);
       if (!textLabel.equals(htmlLabel)) {
@@ -462,9 +462,9 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
       }
     }
     print(text);
-    
+
   }
-  
+
   private String citationLink(String label, String id) {
     StringBuilder builder = new StringBuilder();
     builder.append("<a href=\"#");
@@ -475,7 +475,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     return builder.toString();
   }
 
-  
+
 
 
   @Override
@@ -493,7 +493,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     return text.replace(TOC_MARKER, toc);
 
   }
-  
+
   @Override
   public String popText() {
     String text = body.toString();
@@ -512,7 +512,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     printHeadings(topHeading.getChildren());
 
     String toc = popText();
-    
+
     print( text.replace(TOC_MARKER, toc) );
 
   }
@@ -525,7 +525,7 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     }
     return text;
   }
-  
+
 
   private String createForwardRef(Caption caption) {
     return "<!-- REF:" + caption.getId() + " -->";
@@ -547,23 +547,23 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
   public void printLink(Caption caption) {
     print(createLink(caption));
   }
-  
+
   @Override
   public Heading getCurrentHeading() {
     return currentHeading;
   }
-  
+
 
   @Override
   public void printCaption(Caption caption) {
 
     captionManager.add(caption);
-    
+
     indent().print("<DIV");
     printAttr("class", "caption");
     println(">");
     print(caption.getNumber());
-    print(".&nbsp&nbsp;");
+    print(".&nbsp;&nbsp;");
     print(caption.getText());
     indent().println("</DIV>");
 
@@ -615,67 +615,67 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     println(">");
     pushIndent();
   }
-  
+
   @Override
   public void endTable() {
     popIndent();
     indent().println("</TABLE>");
   }
-  
+
   @Override
   public void beginRow() {
     indent().println("<TR>");
     pushIndent();
-    
+
   }
-  
+
   @Override
   public void endRow() {
     popIndent();
     indent().println("</TR>");
   }
-  
+
 
   @Override
   public void printTH(String value) {
     indent().print("<TH>").print(value).println("</TH>");
   }
-  
+
   @Override
   public void printTD(String className, String text) {
     indent().print("<TD class=\"").print(className).print("\">").print(text).println("</TD>");
-    
+
   }
-  
+
   @Override
   public void printTD(String value) {
     indent().print("<TD>").print(value).println("</TD>");
   }
-  
+
   @Override
   public void printAnchor(String href, String text) {
     print("<A href=\"").print(href).print("\">").print(text).print("</A>");
   }
-  
+
   @Override
   public void beginDiv(String className) {
     indent().print("<DIV class=\"").print(className).println("\">");
     pushIndent();
   }
-  
+
   @Override
   public void beginDiv(String className, String id) {
 
     indent().print("<DIV class=\"").print(className).print("\" id=\"").print(id).println("\">");
     pushIndent();
   }
-  
+
   @Override
   public void endDiv() {
     popIndent();
     indent().println("</DIV>");
   }
-  
+
 
 
   @Override
@@ -685,12 +685,12 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     println(">");
     println("<PRE>");
   }
-  
+
   @Override
   public void endCodeSnippet() {
     println("</PRE>");
     indent().println("</DIV>");
-    
+
   }
 
 
@@ -700,32 +700,32 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     pushIndent();
     indent().print("<DD>").print(description).println("</DD>");
     popIndent();
-    
+
   }
 
   @Override
   public void printParagraph(String text) {
     indent().print("<P>").print(text).println("</P>");
   }
-  
+
 
   @Override
   public void beginParagraph() {
     indent().print("<P>");
   }
-  
+
   @Override
   public void endParagraph() {
     println("</P>");
   }
 
-  
+
   @Override
   public void printListItem(String text) {
     if (text != null) {
       indent().print("<LI>").print(text).println("</LI>");
     }
-    
+
   }
 
   @Override
@@ -738,14 +738,14 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     println("</HEAD>");
     println("<BODY>");
   }
-  
+
 
   @Override
   public void endHTML() {
     println("</BODY>");
     println("</HTML>");
   }
-  
+
 
   protected void printStyleSheetLink() {
 
@@ -758,20 +758,20 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     println(">");
 
   }
-  
+
 
   @Override
   public Heading createHeading(String text, String id) {
 
     text = text.trim();
     Level level = currentHeading.getLevel().getNextLevel();
-    
+
     Heading result = new Heading(level, text, id);
     currentHeading.add(result);
-    
+
     return result;
   }
-  
+
   @Override
   public Heading createHeading(Level level, String text, String id) {
     Heading heading = new Heading(level, text, id);
@@ -786,9 +786,9 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     if (manager == null) {
       return;
     }
-    
+
     String text = popText();
-    
+
     List<BibliographicReference> targetList = new ArrayList<BibliographicReference>();
     List<BibliographicReference> list = manager.listReferences();
     Collections.sort(list);
@@ -799,17 +799,17 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
         targetList.add(ref);
       }
     }
-    
-    
+
+
     if (targetList.isEmpty()) {
       print(text);
       return;
     }
-    
+
     linkToBibliography(targetList, text);
-    
-    
-    
+
+
+
     Heading heading = createHeading(Level.H2, "References", "References");
     if (headingPrinter == null) {
       print(heading);
@@ -821,22 +821,22 @@ public class DefaultDocumentPrinter extends PrintEngine implements DocumentPrint
     println(">");
     File thisFile = metadata.getLocalFile();
     LinkManager linkManager = thisFile==null ? null : new LinkManager(thisFile);
-    
+
     for (BibliographicReference r : targetList) {
-      
+
       File otherFile = r.getLocalFile();
       if (otherFile != null && thisFile !=null) {
         String uri = linkManager.relativize(otherFile);
         r.setUri(uri);
       }
       String html = r.htmlText();
-      
+
       indent().print("<DT>");
       printReferenceAnchor(r).println("</DT>");
       indent().print("<DD>").print(html).println("</DD>");
     }
-    
+
   }
 
-  
+
 }

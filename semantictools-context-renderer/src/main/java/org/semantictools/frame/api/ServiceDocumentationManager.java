@@ -957,7 +957,7 @@ public class ServiceDocumentationManager {
     List<ContextProperties> list = doc.listContextProperties();
     if (list.size()==1) {
       String mediaType = list.get(0).getMediaType();
-      method.addRequestHeader("Content-Type", "<code>" + mediaType + "</code>");
+      method.addRequestHeader("Content-Type", mediaType);
 
     } else {
       StringBuilder builder = new StringBuilder();
