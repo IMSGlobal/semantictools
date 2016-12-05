@@ -80,7 +80,7 @@ public class ServiceDocumentationManager {
   private static final String POST_REQUEST_MEDIATYPE = "POST.request.mediaType";
   private static final String POST_RESPONSE_MEDIATYPE = "POST.response.mediaType";
   private static final String PUT_INSTRUCTIONS = "PUT.instructions";
-  private static final String PUT_CREATED_DESCRIPTION = "PUT.created.description";
+  private static final String PUT_UPDATED_DESCRIPTION = "PUT.updated.description";
   private static final String PUT_REQUEST_MEDIATYPE = "PUT.request.mediaType";
   private static final String PUT_RESPONSE_MEDIATYPE = "PUT.response.mediaType";
   private static final String PUT_RULES = "PUT.rules";
@@ -244,8 +244,8 @@ public class ServiceDocumentationManager {
         setPutRules(sink, value);
       } else if (POST_CREATED_DESCRIPTION.equals(key)) {
         methodInfo.setPostCreatedDescription(value);
-      } else if (PUT_CREATED_DESCRIPTION.equals(key)) {
-        methodInfo.setPutCreatedDescription(value);
+      } else if (PUT_UPDATED_DESCRIPTION.equals(key)) {
+        methodInfo.setPutUpdatedDescription(value);
       } else if (key.endsWith(FORBIDDEN_METHOD)) {
         if ("true".equalsIgnoreCase(value)) {
           sink.addForbiddenMethod(key.split("\\.")[0]);
@@ -902,13 +902,13 @@ public class ServiceDocumentationManager {
     applyRequestMediaTypes(doc, method);
 
     String idMediaType = doc.getPutResponseMediaType();
-    String createdDescription = null;
+    String updatedDescription = null;
 
     // TODO: Support the option of multiple response types, in which case one of them
     //       will be a default, but others may be requested via the Accept header.
 
     if (idMediaType == null) {
-      createdDescription = "The request has succeeded.\n" +
+      updatedDescription = "The request has succeeded.\n" +
       "<p>The reponse will contain an empty body.</p>";
     } else {
 
@@ -920,15 +920,15 @@ public class ServiceDocumentationManager {
       String href = linkManager.relativize(context.getMediaTypeDocFile());
       StringBuilder anchor = new StringBuilder();
       appendAnchor(anchor, href, idMediaType);
-      createdDescription = methodInfo.getPutCreatedDescription();
-      if (createdDescription == null) {
-          createdDescription =
+      updatedDescription = methodInfo.getPutUpdatedDescription();
+      if (updatedDescription == null) {
+          updatedDescription =
             "The request has succeeded.\n" +
             "<p>The response contains a small JSON document that provides the endpoint URI for the newly updated " +
             "<code>{0}</code> resource.  This JSON document must conform to the <code>{1}</code> format.  " +
             "The <code>Content-Type</code> header of the response will be set to this media type.";
       }
-      createdDescription = format(createdDescription, typeName, anchor.toString());
+      updatedDescription = format(updatedDescription, typeName, anchor.toString());
 
     }
 
@@ -937,18 +937,18 @@ public class ServiceDocumentationManager {
     method.setRequestBodyRequirement(
           "The request body must contain a JSON document in the format defined by the Content-Type request header." );
 
-    if (!method.contains(ResponseInfo.OK)) {
+//    if (!method.contains(ResponseInfo.OK)) {
 
-      ResponseInfo info = ResponseInfo.OK.copy("The request was successful.");
+//      ResponseInfo info = ResponseInfo.OK.copy("The request was successful.");
 
-      method.add(info);
-    }
+//      method.add(info);
+//    }
 
     if (doc.hasForbiddenMethod("PUT")) {
       addResponse(method, ResponseInfo.FORBIDDEN);
     }
 
-    addResponse(method, ResponseInfo.CREATED.copy(createdDescription));
+    addResponse(method, ResponseInfo.OK.copy(updatedDescription));
     addResponse(method, ResponseInfo.UNAUTHORIZED);
     addResponse(method, ResponseInfo.NOT_FOUND);
     addResponse(method, ResponseInfo.INTERNAL_SERVER_ERROR);
@@ -1457,7 +1457,7 @@ public class ServiceDocumentationManager {
 
   static class ServiceMethodInfo {
     private String postCreatedDescription;
-    private String putCreatedDescription;
+    private String putUpdatedDescription;
 
     public String getPostCreatedDescription() {
       return postCreatedDescription;
@@ -1467,12 +1467,12 @@ public class ServiceDocumentationManager {
         this.postCreatedDescription = postCreatedDescription;
     }
 
-    public String getPutCreatedDescription() {
-      return putCreatedDescription;
+    public String getPutUpdatedDescription() {
+      return putUpdatedDescription;
     }
 
-    public void setPutCreatedDescription(String putCreatedDescription) {
-        this.putCreatedDescription = putCreatedDescription;
+    public void setPutUpdatedDescription(String putUpdatedDescription) {
+        this.putUpdatedDescription = putUpdatedDescription;
     }
 
   }
