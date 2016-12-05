@@ -108,8 +108,8 @@ public class ServiceDocumentationPrinter extends HtmlPrinter implements HeadingP
     }
     
     MethodDocumentation method = doc.getContainerGetDocumentation();
-    Uri rdfType = doc.getRdfType();
-    String typeName = rdfType.getLocalName();
+//    Uri rdfType = doc.getRdfType();
+//    String typeName = rdfType.getLocalName();
     String containerTypeName = containerType.getLocalName();
     String containerArticle = StringUtil.article(containerTypeName);
     

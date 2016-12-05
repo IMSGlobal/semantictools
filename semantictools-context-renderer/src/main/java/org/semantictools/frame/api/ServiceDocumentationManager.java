@@ -618,7 +618,7 @@ public class ServiceDocumentationManager {
       doc.setContainerGetDocumentation(method);
     }
     Uri containerType = null;
-    String containerURI = null;
+//    String containerURI = null;
     if (doc.getContainerType() != null) {
       containerType = doc.getContainerType();
     } else  {
