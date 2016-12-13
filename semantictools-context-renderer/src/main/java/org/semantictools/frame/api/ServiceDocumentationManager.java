@@ -1006,16 +1006,6 @@ public class ServiceDocumentationManager {
       method.setSummary(format(pattern, typeName));
       method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
-      if (doc.hasMultipleFormats()) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("The format for one specific representation of the ");
-        builder.append(typeName);
-        builder.append(" resource that is to be deleted. If the Content-Type header is not specified, then all ");
-        builder.append("representations of the resource will be deleted.");
-
-        method.addRequestHeader("Content-Type", builder.toString());
-      }
-
       method.setRequestBodyRequirement("The request body must be empty.");
 
       if (!method.contains(ResponseInfo.OK)) {
