@@ -664,7 +664,7 @@ public class ServiceDocumentationManager {
 
 
     // Request Headers
-    method.addRequestHeader("Authorization", "Authorization parameters dictated by the OAuth Body Hash Protocol");
+    method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
     // Status Codes
 
@@ -869,7 +869,7 @@ public class ServiceDocumentationManager {
   private void setGetRequestHeadersDefault(ServiceDocumentation doc) {
     MethodDocumentation method = doc.getGetDocumentation();
     if (!doc.isContentUnsigned()) {
-      method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the OAuth Body Hash Protocol</em>");
+      method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
     }
     if (doc.isContentNegotiation()) {
       addAcceptHeader(doc, method);
@@ -932,7 +932,7 @@ public class ServiceDocumentationManager {
 
     }
 
-    method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the OAuth Body Hash Protocol</em>");
+    method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
     method.setRequestBodyRequirement(
           "The request body must contain a JSON document in the format defined by the Content-Type request header." );
@@ -1004,7 +1004,7 @@ public class ServiceDocumentationManager {
           "REST endpoint in accordance with the following rules:";
 
       method.setSummary(format(pattern, typeName));
-      method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the OAuth Body Hash Protocol</em>");
+      method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
       if (doc.hasMultipleFormats()) {
         StringBuilder builder = new StringBuilder();
@@ -1103,7 +1103,7 @@ public class ServiceDocumentationManager {
 
     }
 
-    method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the OAuth Body Hash Protocol</em>");
+    method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
     if (doc.hasForbiddenMethod("POST")) {
       addResponse(method, ResponseInfo.FORBIDDEN);
