@@ -483,13 +483,16 @@ public class ServiceDocumentationManager {
       throw new ServiceDocumentationSyntaxError("'mediaType property' is missing");
     }
 
-    Frame frame = typeManager.getFrameByUri(sink.getRdfType().stringValue());
+    Frame frame;
+    List<Uri> types = sink.getRdfTypes();
+    for (Uri type : types) {
+      frame = typeManager.getFrameByUri(type.stringValue());
+      if (frame == null) {
+        throw new RuntimeException("Frame not found: " + sink.getRdfType().stringValue());
+      }
 
-    if (frame == null) {
-      throw new RuntimeException("Frame not found: " + sink.getRdfType().stringValue());
+      sink.setFrame(frame);
     }
-
-    sink.setFrame(frame);
 
   }
 
@@ -604,10 +607,14 @@ public class ServiceDocumentationManager {
 
   private void setContainerGetDoc(Properties properties,  ServiceDocumentation doc, String typeName) {
 
-
-    Frame frame = doc.getFrame();
-
-    List<Frame> containerList = frame.getContainerList();
+    List<Frame> containerList = null;
+    List<Frame> frames = doc.getFrames();
+    for (Frame frame : frames) {
+      containerList = frame.getContainerList();
+      if (containerList == null || containerList.isEmpty()) {
+        continue;
+      }
+    }
     if (containerList == null || containerList.isEmpty()) {
       return;
     }
@@ -618,7 +625,6 @@ public class ServiceDocumentationManager {
       doc.setContainerGetDocumentation(method);
     }
     Uri containerType = null;
-//    String containerURI = null;
     if (doc.getContainerType() != null) {
       containerType = doc.getContainerType();
     } else  {
@@ -912,37 +918,47 @@ public class ServiceDocumentationManager {
       "<p>The reponse will contain an empty body.</p>";
     } else {
 
-      ContextProperties context = contextManager.getContextPropertiesByMediaType(idMediaType);
-      if (context == null) {
-        throw new ServiceDocumentationSyntaxError("Unknown media type: " + idMediaType);
+      boolean multipleTypes = false;
+      ContextProperties context = null;
+      String mediaType = null;
+      StringTokenizer tokenizer = new StringTokenizer(idMediaType, ",");
+      while (tokenizer.hasMoreTokens()) {
+        multipleTypes = mediaType != null;
+        mediaType = tokenizer.nextToken().trim();
+        context = contextManager.getContextPropertiesByMediaType(mediaType);
+        if (context == null) {
+          throw new ServiceDocumentationSyntaxError("Unknown media type: " + mediaType);
+        }
       }
-      LinkManager linkManager = new LinkManager(doc.getServiceDocumentationFile());
-      String href = linkManager.relativize(context.getMediaTypeDocFile());
-      StringBuilder anchor = new StringBuilder();
-      appendAnchor(anchor, href, idMediaType);
+
       updatedDescription = methodInfo.getPutUpdatedDescription();
       if (updatedDescription == null) {
+        if (!multipleTypes) {
+          LinkManager linkManager = new LinkManager(doc.getServiceDocumentationFile());
+          String href = linkManager.relativize(context.getMediaTypeDocFile());
+          StringBuilder anchor = new StringBuilder();
+          appendAnchor(anchor, href, idMediaType);
           updatedDescription =
             "The request has succeeded.\n" +
             "<p>The response contains a small JSON document that provides the endpoint URI for the newly updated " +
             "<code>{0}</code> resource.  This JSON document must conform to the <code>{1}</code> format.  " +
             "The <code>Content-Type</code> header of the response will be set to this media type.";
+          updatedDescription = format(updatedDescription, typeName, anchor.toString());
+        } else {
+          updatedDescription =
+            "The request has succeeded.\n" +
+            "<p>The response contains a small JSON document that provides the endpoint URI for the newly updated " +
+            "<code>{0}</code> resource.  This JSON document must conform to the format specified in the Content-Type header of the request.  " +
+            "The <code>Content-Type</code> header of the response will be set to this media type.";
+          updatedDescription = format(updatedDescription, typeName);
+        }
       }
-      updatedDescription = format(updatedDescription, typeName, anchor.toString());
-
     }
 
     method.addRequestHeader("Authorization", "<em>Authorization parameters dictated by the LTI web service security profile</em>");
 
     method.setRequestBodyRequirement(
           "The request body must contain a JSON document in the format defined by the Content-Type request header." );
-
-//    if (!method.contains(ResponseInfo.OK)) {
-
-//      ResponseInfo info = ResponseInfo.OK.copy("The request was successful.");
-
-//      method.add(info);
-//    }
 
     if (doc.hasForbiddenMethod("PUT")) {
       addResponse(method, ResponseInfo.FORBIDDEN);
@@ -1073,23 +1089,41 @@ public class ServiceDocumentationManager {
       "<p>The reponse will contain an empty body.</p>";
     } else {
 
-      ContextProperties context = contextManager.getContextPropertiesByMediaType(idMediaType);
-      if (context == null) {
-        throw new ServiceDocumentationSyntaxError("Unknown media type: " + idMediaType);
+      boolean multipleTypes = false;
+      ContextProperties context = null;
+      String mediaType = null;
+      StringTokenizer tokenizer = new StringTokenizer(idMediaType, ",");
+      while (tokenizer.hasMoreTokens()) {
+        multipleTypes = mediaType != null;
+        mediaType = tokenizer.nextToken().trim();
+        context = contextManager.getContextPropertiesByMediaType(mediaType);
+        if (context == null) {
+          throw new ServiceDocumentationSyntaxError("Unknown media type: " + mediaType);
+        }
       }
-      LinkManager linkManager = new LinkManager(doc.getServiceDocumentationFile());
-      String href = linkManager.relativize(context.getMediaTypeDocFile());
-      StringBuilder anchor = new StringBuilder();
-      appendAnchor(anchor, href, idMediaType);
+
       createdDescription = methodInfo.getPostCreatedDescription();
       if (createdDescription == null) {
+        if (!multipleTypes) {
+          LinkManager linkManager = new LinkManager(doc.getServiceDocumentationFile());
+          String href = linkManager.relativize(context.getMediaTypeDocFile());
+          StringBuilder anchor = new StringBuilder();
+          appendAnchor(anchor, href, idMediaType);
           createdDescription =
             "The request has succeeded.\n" +
             "<p>The response contains a small JSON document that provides the endpoint URI for the newly created " +
             "<code>{0}</code> resource.  This JSON document must conform to the <code>{1}</code> format.  " +
             "The <code>Content-Type</code> header of the response will be set to this media type.";
+          createdDescription = format(createdDescription, typeName, anchor.toString());
+        } else {
+          createdDescription =
+            "The request has succeeded.\n" +
+            "<p>The response contains a small JSON document that provides the endpoint URI for the newly created " +
+            "<code>{0}</code> resource.  This JSON document must conform to the format specified in the Content-Type header of the request.  " +
+            "The <code>Content-Type</code> header of the response will be set to this media type.";
+          createdDescription = format(createdDescription, typeName);
+        }
       }
-      createdDescription = format(createdDescription, typeName, anchor.toString());
 
     }
 

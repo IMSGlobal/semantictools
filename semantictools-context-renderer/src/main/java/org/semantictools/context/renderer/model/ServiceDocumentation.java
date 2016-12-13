@@ -31,7 +31,7 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
 
   private File serviceDocumentationFile;
   private Uri rdfType;
-  private Frame frame;
+  private List<Frame> frames = new ArrayList<Frame>();
   private String postResponseMediaType;
   private String postResponseMediaTypeRef;
   private String putResponseMediaType;
@@ -126,6 +126,15 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
       rdfType = new Uri(rdfTypeURI);
     }
     return rdfType;
+  }
+  public List<Uri> getRdfTypes() {
+    List<Uri> rdfTypes = new ArrayList<Uri>();
+    if (!contextPropertiesList.isEmpty()) {
+      for (ContextProperties contextProperties : contextPropertiesList) {
+        rdfTypes.add(new Uri(contextProperties.getRdfTypeURI()));
+      }
+    }
+    return rdfTypes;
   }
 
 
@@ -350,12 +359,12 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     this.containerType = containerType;
   }
 
-  public Frame getFrame() {
-    return frame;
+  public List<Frame> getFrames() {
+    return frames;
   }
 
   public void setFrame(Frame frame) {
-    this.frame = frame;
+    this.frames.add(frame);
   }
 
 
