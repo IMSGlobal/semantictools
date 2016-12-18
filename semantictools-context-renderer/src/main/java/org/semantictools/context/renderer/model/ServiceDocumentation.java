@@ -131,7 +131,10 @@ public class ServiceDocumentation extends BaseDocumentMetadata  {
     List<Uri> rdfTypes = new ArrayList<Uri>();
     if (!contextPropertiesList.isEmpty()) {
       for (ContextProperties contextProperties : contextPropertiesList) {
-        rdfTypes.add(new Uri(contextProperties.getRdfTypeURI()));
+        String rdfTypeURI = contextProperties.getRdfTypeURI();
+        if (rdfTypeURI != null) {
+          rdfTypes.add(new Uri(rdfTypeURI));
+        }
       }
     }
     return rdfTypes;
